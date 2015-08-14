@@ -1,0 +1,5 @@
+D:\PhoenixDev\PhoenixDev\bin\Microsoft.PythonTools.WebRole.dll
+D:\PhoenixDev\PhoenixDev\bin\AzureSetup.cfg
+D:\PhoenixDev\PhoenixDev\bin\Microsoft.PythonTools.AzureSetup.exe
+D:\PhoenixDev\PhoenixDev\bin\Microsoft.PythonTools.AzureSetup.exe.config
+D:\PhoenixDev\PhoenixDev\bin\wfastcgi.py

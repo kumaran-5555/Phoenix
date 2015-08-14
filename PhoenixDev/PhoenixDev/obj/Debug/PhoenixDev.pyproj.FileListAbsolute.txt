@@ -1,0 +1,11 @@
+D:\PhoenixDev\PhoenixDev\bin\Microsoft.PythonTools.WebRole.dll
+D:\PhoenixDev\PhoenixDev\obj\Debug\attach_server.py
+D:\PhoenixDev\PhoenixDev\obj\Debug\visualstudio_py_debugger.py
+D:\PhoenixDev\PhoenixDev\obj\Debug\visualstudio_py_repl.py
+D:\PhoenixDev\PhoenixDev\obj\Debug\visualstudio_py_util.py
+D:\PhoenixDev\PhoenixDev\obj\Debug\__init__.py
+D:\PhoenixDev\PhoenixDev\obj\Debug\__main__.py
+D:\PhoenixDev\PhoenixDev\bin\AzureSetup.cfg
+D:\PhoenixDev\PhoenixDev\bin\Microsoft.PythonTools.AzureSetup.exe
+D:\PhoenixDev\PhoenixDev\bin\Microsoft.PythonTools.AzureSetup.exe.config
+D:\PhoenixDev\PhoenixDev\bin\wfastcgi.py
