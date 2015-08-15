@@ -36,6 +36,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'Test',
+
 )
 
 MIDDLEWARE_CLASSES = (
@@ -47,9 +49,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'phoenix.urls'
+ROOT_URLCONF = 'PhoenixDev.urls'
 
-WSGI_APPLICATION = 'phoenix.wsgi.application'
+WSGI_APPLICATION = 'PhoenixDev.wsgi.application'
 
 
 # Database
@@ -62,7 +64,7 @@ DATABASES = {
     },
     'default' : {
 		'ENGINE': 'django.db.backends.mysql',
-		'NAME': 'project005_20141213',
+		'NAME': 'phoenix_dev',
 		'USER': 'project005',
 		'PASSWORD': 'pivotproject005',
 		'HOST': 'project005.cloudapp.net',

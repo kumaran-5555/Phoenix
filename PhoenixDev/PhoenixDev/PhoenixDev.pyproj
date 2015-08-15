@@ -32,13 +32,20 @@
     <Compile Include="PhoenixDev\settings.py" />
     <Compile Include="PhoenixDev\urls.py" />
     <Compile Include="PhoenixDev\wsgi.py" />
+    <Compile Include="Test\models.py" />
+    <Compile Include="Test\tests.py" />
+    <Compile Include="Test\views.py" />
+    <Compile Include="Test\__init__.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="PhoenixDev\" />
+    <Folder Include="Test\" />
+    <Folder Include="Test\templates\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="requirements.txt" />
     <Content Include="db.sqlite3" />
+    <Content Include="Test\templates\index.html" />
   </ItemGroup>
   <ItemGroup>
     <None Include="readme.mht">
