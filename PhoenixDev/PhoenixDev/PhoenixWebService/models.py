@@ -6,6 +6,9 @@ class TestTable(models.Model):
 
 
 class Sellers(models.Model):
+    '''
+        primary table to store seller information
+    '''
     sellerName = models.CharField(max_length=100)
     sellerCityName = models.CharField(max_length=50)
     sellerAddress = models.CharField(max_length=300)
@@ -22,6 +25,10 @@ class Sellers(models.Model):
     sellerPasswordHash = models.CharField(max_length=512)
 
 class Products(models.Model):
+    '''
+        primary table to store product information
+        specs are stored in ProductSpecs key-value style
+    '''
     # auto primary key is created by django, we will use that
     # TODO - supports more than category 
     productCategoryId = models.ForeignKey('CategoryTaxonomy')
@@ -31,6 +38,11 @@ class Products(models.Model):
     productBrandName = models.ForeignKey('ProductBrands')
 
 class ProductBrands(models.Model):
+    '''
+        captures brand-category mapping,
+        we can use this is sending bargain request to 
+        selected seller who offer a specific brand in that category
+    '''
     brandName = models.CharField(max_length=200)
     categoryId = models.ForeignKey('CategoryTaxonomy')
 
@@ -47,6 +59,8 @@ class SellerProductOfferings(models.Model):
 class CategoryTaxonomy(models.Model):
     '''
         root category ID is 0
+        captures category navigation
+
     '''
     parentCategory = models.ForeignKey('CategoryTaxonomy')
     categoryName = models.CharField(max_length=200)
@@ -62,6 +76,9 @@ class ProductSpecs(models.Model):
 
 
 class ProductRatings(models.Model):
+    '''
+        user given ratings for each product
+    '''
     # change to forieng key
     productId = models.ForeignKey('Products')
     # change to forieng key
@@ -72,6 +89,9 @@ class ProductRatings(models.Model):
     ratingTimestamp = models.DateTimeField(auto_now_add=True)
 
 class ProductReview(models.Model):
+    '''
+        user product review
+    '''
     # change to forieng key
     productId = models.ForeignKey('Products')
     # change to forieng key
@@ -82,6 +102,9 @@ class ProductReview(models.Model):
     ratingTimestamp = models.DateTimeField(auto_now_add=True)
 
 class SellerRating(models.Model):
+    '''
+        user seller review
+    '''
     # change to forieng key
     sellerId = models.ForeignKey('Sellers')
     # change to forieng key
@@ -92,6 +115,9 @@ class SellerRating(models.Model):
     ratingTimestamp = models.DateTimeField(auto_now_add=True)
 
 class SellerReview(models.Model):
+    '''
+        user seller rating
+    '''
     # change to forieng key
     sellerId = models.ForeignKey('Sellers')
     # change to forieng key
@@ -103,6 +129,9 @@ class SellerReview(models.Model):
 
 
 class Users(models.Model):
+    '''
+        primary table to store user related information
+    '''
     userName = models.CharField(max_length=100)
     userPrimaryPhone = models.CharField(max_length=11)
     userMailId = models.CharField(max_length=100)
@@ -114,6 +143,9 @@ class Users(models.Model):
     userSignupTime = models.DateTimeField(auto_now_add=True)
 
 class BargainRequest(models.Model):
+    '''
+        immutable bargain request created by the user
+    '''
     userId = models.ForeignKey('Users')
     productId = models.ForeignKey('Products')
     searchLatitude = models.FloatField()
@@ -136,6 +168,9 @@ class BargainReqeustedFeatures(models.Model):
 
 
 class BargainResponse(models.Model):
+    '''
+        immutable bargain response created by the seller
+    '''
     bargainRequestId = models.ForeignKey('BargainRequest')
     sellerId = models.ForeignKey('Sellers')
     offeredPrice = models.IntegerField()
