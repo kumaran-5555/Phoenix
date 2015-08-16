@@ -1,4 +1,6 @@
-from django.db import models
+﻿from django.db import models
+
+from PhoenixDev.PhoenixWebService import *
 
 
 class Users(models.Model):

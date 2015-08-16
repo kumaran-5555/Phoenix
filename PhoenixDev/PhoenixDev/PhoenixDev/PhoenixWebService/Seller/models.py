@@ -1,7 +1,7 @@
-from django.db import models
+﻿from django.db import models
 
 
-
+from PhoenixDev.PhoenixWebService import *
 
 class Sellers(models.Model):
     '''
@@ -27,9 +27,9 @@ class SellerRating(models.Model):
         user seller review
     '''
     # change to forieng key
-    sellerId = models.ForeignKey('Sellers')
+    sellerId = models.ForeignKey(Sellers)
     # change to forieng key
-    userId = models.ForeignKey('Users')
+    userId = models.ForeignKey(User.models.Users)
     ratingVal = models.IntegerField()
 
     # let the backend add the timestamp during creation
@@ -40,9 +40,9 @@ class SellerReview(models.Model):
         user seller rating
     '''
     # change to forieng key
-    sellerId = models.ForeignKey('Sellers')
+    sellerId = models.ForeignKey(Sellers)
     # change to forieng key
-    userId = models.ForeignKey('Users')
+    userId = models.ForeignKey(User.models.Users)
     reviewVal = models.CharField(max_length=1024)
 
     # let the backend add the timestamp during creation
