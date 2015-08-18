@@ -4,6 +4,8 @@
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <Name>PhoenixDev</Name>
     <RootNamespace>PhoenixDev</RootNamespace>
+    <InterpreterId>{58ac608f-233a-4c63-adbf-cc7477eb2d6d}</InterpreterId>
+    <InterpreterVersion>3.3</InterpreterVersion>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -28,6 +30,27 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="manage.py" />
+    <Compile Include="PhoenixDev\PhoenixWebService\Bargain\models.py" />
+    <Compile Include="PhoenixDev\PhoenixWebService\Bargain\tests.py" />
+    <Compile Include="PhoenixDev\PhoenixWebService\Bargain\views.py" />
+    <Compile Include="PhoenixDev\PhoenixWebService\Bargain\__init__.py" />
+    <Compile Include="PhoenixDev\PhoenixWebService\migrations\0001_initial.py" />
+    <Compile Include="PhoenixDev\PhoenixWebService\migrations\0002_productratings_productreview_sellerrating_sellerreview.py" />
+    <Compile Include="PhoenixDev\PhoenixWebService\migrations\__init__.py" />
+    <Compile Include="PhoenixDev\PhoenixWebService\PhoenixWebServiceUrls.py" />
+    <Compile Include="PhoenixDev\PhoenixWebService\Product\models.py" />
+    <Compile Include="PhoenixDev\PhoenixWebService\Product\tests.py" />
+    <Compile Include="PhoenixDev\PhoenixWebService\Product\views.py" />
+    <Compile Include="PhoenixDev\PhoenixWebService\Product\__init__.py" />
+    <Compile Include="PhoenixDev\PhoenixWebService\Seller\models.py" />
+    <Compile Include="PhoenixDev\PhoenixWebService\Seller\tests.py" />
+    <Compile Include="PhoenixDev\PhoenixWebService\Seller\views.py" />
+    <Compile Include="PhoenixDev\PhoenixWebService\Seller\__init__.py" />
+    <Compile Include="PhoenixDev\PhoenixWebService\User\models.py" />
+    <Compile Include="PhoenixDev\PhoenixWebService\User\tests.py" />
+    <Compile Include="PhoenixDev\PhoenixWebService\User\views.py" />
+    <Compile Include="PhoenixDev\PhoenixWebService\User\__init__.py" />
+    <Compile Include="PhoenixDev\PhoenixWebService\__init__.py" />
     <Compile Include="PhoenixDev\__init__.py" />
     <Compile Include="PhoenixDev\settings.py" />
     <Compile Include="PhoenixDev\urls.py" />
@@ -39,10 +62,29 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="PhoenixDev\" />
+    <Folder Include="PhoenixDev\PhoenixWebService\" />
+    <Folder Include="PhoenixDev\PhoenixWebService\Bargain\" />
+    <Folder Include="PhoenixDev\PhoenixWebService\Bargain\templates\" />
+    <Folder Include="PhoenixDev\PhoenixWebService\migrations\" />
+    <Folder Include="PhoenixDev\PhoenixWebService\Product\" />
+    <Folder Include="PhoenixDev\PhoenixWebService\Product\templates\" />
+    <Folder Include="PhoenixDev\PhoenixWebService\Seller\" />
+    <Folder Include="PhoenixDev\PhoenixWebService\Seller\templates\" />
+    <Folder Include="PhoenixDev\PhoenixWebService\templates\" />
+    <Folder Include="PhoenixDev\PhoenixWebService\User\" />
+    <Folder Include="PhoenixDev\PhoenixWebService\User\templates\" />
     <Folder Include="Test\" />
     <Folder Include="Test\templates\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="PhoenixDev\PhoenixWebService\Bargain\templates\index.html" />
+    <Content Include="PhoenixDev\PhoenixWebService\migrations\0001_initial.pyc" />
+    <Content Include="PhoenixDev\PhoenixWebService\migrations\0002_productratings_productreview_sellerrating_sellerreview.pyc" />
+    <Content Include="PhoenixDev\PhoenixWebService\migrations\__init__.pyc" />
+    <Content Include="PhoenixDev\PhoenixWebService\Product\templates\index.html" />
+    <Content Include="PhoenixDev\PhoenixWebService\Seller\templates\index.html" />
+    <Content Include="PhoenixDev\PhoenixWebService\templates\index.html" />
+    <Content Include="PhoenixDev\PhoenixWebService\User\templates\index.html" />
     <Content Include="requirements.txt" />
     <Content Include="db.sqlite3" />
     <Content Include="Test\templates\index.html" />
@@ -51,6 +93,9 @@
     <None Include="readme.mht">
       <SubType>WebBrowser</SubType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="{58ac608f-233a-4c63-adbf-cc7477eb2d6d}\3.3" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.Django.targets" />
   <!-- Specify pre- and post-build commands in the BeforeBuild and 
