@@ -16,3 +16,13 @@ class Users(models.Model):
     # sha512
     userPasswordHash = models.CharField(max_length=512)
     userSignupTime = models.DateTimeField(auto_now_add=True)
+
+class OTPMappings(models.Model):
+    '''
+        stores the otp send to a mobile number for validating 
+        again
+    '''
+    phoneNumber = models.CharField(max_length=10)
+    otpValue = models.CharField(max_length=5)
+    expiaryDate = models.DateTimeField()
+
