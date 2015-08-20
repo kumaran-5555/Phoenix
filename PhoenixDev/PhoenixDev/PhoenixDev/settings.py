@@ -106,3 +106,33 @@ SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 
 
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'debug_logfile.txt'),
+            'formatter': 'verbose',
+        },
+    },
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s:%(asctime)s:%(pathname)s:%(funcName)s:%(lineno)d:%(process)d:%(thread)d [%(message)s]'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+
+    'loggers': {
+        'phoenix.logger': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+            
+        },
+    },
+}
+

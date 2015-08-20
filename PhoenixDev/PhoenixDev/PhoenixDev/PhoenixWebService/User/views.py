@@ -33,6 +33,9 @@ def signup(request):
     delta = datetime.timedelta(seconds=Settings.OTP_VALID_TIME_SECONDS)
 
     otpValue = '55555'
+    Helpers.logger.debug(otpValue)
+
+
     # we maintain only single row per phonenumber - invariant
     # check if otp already exist and valid, reuse
     # already exists but invalid, create new 

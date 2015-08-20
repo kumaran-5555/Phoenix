@@ -1,4 +1,10 @@
 import json
+import logging
+
+LOGGERNAME='phoenix.logger'
+
+
+logger = logging.getLogger(LOGGERNAME)
 
 
 
