@@ -1,10 +1,11 @@
-import json
+﻿import json
 import logging
 
-LOGGERNAME='phoenix.logger'
+import Settings
 
 
-logger = logging.getLogger(LOGGERNAME)
+
+logger = logging.getLogger(Settings.LOGGERNAME)
 
 
 
@@ -12,13 +13,22 @@ class StatusCodes():
     # have two members per code
     Success = 0
     InvalidPhoneNum = 1
+    InvalidOtpValue = 2
+    NotPostRequest = 3
+    OtpValidationFailed = 4
+    InvalidPassword = 5
     
 
 
 class StatusMessage():
     statusMessages = {}
     statusMessages[StatusCodes.InvalidPhoneNum] = 'Invalid phone number'
+    statusMessages[StatusCodes.InvalidOtpValue] = 'Invalid otp value'
+    statusMessages[StatusCodes.NotPostRequest] = 'Not post request'
     statusMessages[StatusCodes.Success] = 'Success'
+    statusMessages[StatusCodes.OtpValidationFailed] ='Otp validation failed'
+    statusMessages[StatusCodes.InvalidPassword] = 'Password is invalid'
+
 
     
 
