@@ -31,7 +31,18 @@ def signup(request):
     if not phoneNumber or len(phoneNumber) != 10 or not phoneNumber.isdigit():
         Helpers.logger.debug('Invalid phoneNumber {0}'.format(phoneNumber))
         return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidPhoneNum, phoneNumber))
-
+    
+    # check whether the phonenumber is already signed-up
+    try:
+        row = User.models.Users.objects.get(userPrimaryPhone=phoneNumber)
+        # get is successful
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.PhoneNumAlreadyExists, phoneNumber))
+    except User.models.Users.MultipleObjectsReturned:
+        # Alert: shouldn't come here
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.PhoneNumAlreadyExists, phoneNumber))
+    except (User.models.Users.DoesNotExist):
+        pass
+    
     now = timezone.now()
     delta = datetime.timedelta(seconds=Settings.OTP_VALID_TIME_SECONDS)
 
@@ -96,17 +107,18 @@ def signup_optvalidation(request):
         Helpers.logger.debug('Invalid otpValue {0}'.format(otpValue))
         return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidOtpValue, otpValue))
 
+    now = timezone.now()
     
     try:
         row = User.models.OTPMappings.objects.get(phoneNumber=phoneNumber)
         # check if opt is correct and valid
-        if row.expiaryDate < now and row.otpValue == otpValue:
+        if row.expiaryDate > now and row.otpValue == otpValue:
             Helpers.logger.debug('Otp exists and valid {0}'.format(otpValue))
             return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, otpValue))
         else:
             # already exists and valid no need to update
-            Helpers.logger.debug('Otp exists, but invalid {0}'.format(otpValue))  
-            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.OtpValidationFailed, {'otpValue': otpValue }))          
+            Helpers.logger.debug('Otp exists, but invalid {0} expirary {1} now {2}'.format(otpValue, row.expiaryDate, now))  
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.OtpValidationFailed, {'otpValue': otpValue}))          
 
 
     except User.models.OTPMappings.DoesNotExist:
@@ -121,14 +133,51 @@ def signup_password(request):
 
     password = request.POST.get('password', False)
     phoneNumber =  request.POST.get('phoneNumber', False)
+    otpValue = request.POST.get('otpValue', False)
+
+    # we share the otp with user as secret, only the users
+    # who have correct otp and phonenumber match and valid
+    # opt are allowed to add password
+
+
 
     # validation
+    if not  otpValue or len(otpValue) != 5 or not otpValue.isdigit():
+        Helpers.logger.debug('Invalid otpValue {0}'.format(otpValue))
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidOtpValue, otpValue))
+
+
     if not phoneNumber or len(phoneNumber) != 10 or not phoneNumber.isdigit():
         Helpers.logger.debug('Invalid phoneNumber {0}'.format(phoneNumber))
         return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidPhoneNum, phoneNumber))
 
     if not password or len(password) > 15 or not re.match(Settings.PASSWORD_REGEX_PATTERN, password):
         return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidPassword, ''))
+    now = timezone.now()
+
+    # validdate otp
+    try:
+        row = User.models.OTPMappings.objects.get(phoneNumber=phoneNumber)
+        # check if opt is correct and valid
+        if row.expiaryDate > now and row.otpValue == otpValue:
+            # valid otp mapping exists
+            Helpers.logger.debug('Otp exists and valid {0}'.format(otpValue))
+            # make the otp expired, the otp is job is done
+            row.expiaryDate = now
+            row.save()
+            
+        else:
+            # already exists and valid no need to update
+            Helpers.logger.debug('Otp exists, but invalid {0}'.format(otpValue))  
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.OtpValidationFailed, {'otpValue': otpValue }))          
+
+
+    except User.models.OTPMappings.DoesNotExist:
+        # create new 
+        Helpers.logger.debug('Otp doesnot exists {0}'.format(otpValue))
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.OtpValidationFailed, otpValue))
+
+
 
     # create sha512
     hashObj = hashlib.sha512()
@@ -137,13 +186,85 @@ def signup_password(request):
     hashObj.update(Settings.SECRET_KEY)
     hash = hashObj.hexdigest()
 
-    row = User.models.Users(userPrimaryPhone=phoneNumber, userPasswordHash=hash)
+    row, isCreated = User.models.Users.objects.get_or_create(userPrimaryPhone=phoneNumber)
 
+    # adding new user password, or resetting password is same
+    row.userPasswordHash=hash
     row.save()
 
     Helpers.logger.debug('User added successfully with phoneNumber {0}'.format(phoneNumber))
-    return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, 'added'))   
+    response = HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, 'added'))   
+
+    create_session(response, phoneNumber)
+
+    return response
+
+def login(request):
+    if request.method != 'POST':
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NotPostRequest, ''))
+
+    password = request.POST.get('password', False)
+    phoneNumber =  request.POST.get('phoneNumber', False)
+
+
+    # we share the otp with user as secret, only the users
+    # who have correct otp and phonenumber match and valid
+    # opt are allowed to add password
+    
+    # validation
+    if not phoneNumber or len(phoneNumber) != 10 or not phoneNumber.isdigit():
+        Helpers.logger.debug('Invalid phoneNumber {0}'.format(phoneNumber))
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidPhoneNum, phoneNumber))
+
+    if not password or len(password) > 15 or not re.match(Settings.PASSWORD_REGEX_PATTERN, password):
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidPassword, ''))
+
+
+    now = timezone.now()
+
+    # create sha512
+    hashObj = hashlib.sha512()
+    hashObj.update(password)
+    hashObj.update(phoneNumber)
+    hashObj.update(Settings.SECRET_KEY)
+    hash = hashObj.hexdigest()
+
+    try:
+        row = User.models.Users.objects.get(userPrimaryPhone=phoneNumber, userPasswordHash=hash)
+        # user name is valid
+
+    except User.models.Users.DoesNotExist:
+
+        Helpers.logger.debug('Invalid username password {0} {1}'.format(phoneNumber, password))
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidUsernamePassword, ''))
+
+    # create session here 
+    response = HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, ''))
+    create_session(response, phoneNumber)
+
+    return response
 
 
 
+
+
+def create_session(response, phoneNumber):
+    '''
+        creates session in request
+    '''
+
+    # set session 
+    response.set_cookie('phoneNumber', phoneNumber)
+    response.set_cookie('loggedInTime', timezone.now())
+    response.set_cookie('lastActivityTime', timezone.now())
+
+
+def validate_session(request):
+    '''
+        validates session and updates timestamps
+        if required
+
+        returns boolean
+    '''
+    pass
 

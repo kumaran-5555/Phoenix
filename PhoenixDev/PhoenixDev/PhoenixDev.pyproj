@@ -46,10 +46,16 @@
     <Compile Include="PhoenixDev\PhoenixWebService\Seller\tests.py" />
     <Compile Include="PhoenixDev\PhoenixWebService\Seller\views.py" />
     <Compile Include="PhoenixDev\PhoenixWebService\Seller\__init__.py" />
+    <Compile Include="PhoenixDev\PhoenixWebService\Settings.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="PhoenixDev\PhoenixWebService\User\models.py" />
     <Compile Include="PhoenixDev\PhoenixWebService\User\tests.py" />
     <Compile Include="PhoenixDev\PhoenixWebService\User\views.py" />
     <Compile Include="PhoenixDev\PhoenixWebService\User\__init__.py" />
+    <Compile Include="PhoenixDev\PhoenixWebService\Helpers.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="PhoenixDev\PhoenixWebService\__init__.py" />
     <Compile Include="PhoenixDev\__init__.py" />
     <Compile Include="PhoenixDev\settings.py" />

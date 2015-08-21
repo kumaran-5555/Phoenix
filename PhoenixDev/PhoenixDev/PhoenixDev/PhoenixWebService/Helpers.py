@@ -16,7 +16,11 @@ class StatusCodes():
     InvalidOtpValue = 2
     NotPostRequest = 3
     OtpValidationFailed = 4
+    # while user creating password
     InvalidPassword = 5
+    PhoneNumAlreadyExists = 6
+    InvalidUsernamePassword = 7
+
     
 
 
@@ -28,6 +32,9 @@ class StatusMessage():
     statusMessages[StatusCodes.Success] = 'Success'
     statusMessages[StatusCodes.OtpValidationFailed] ='Otp validation failed'
     statusMessages[StatusCodes.InvalidPassword] = 'Password is invalid'
+    statusMessages[StatusCodes.PhoneNumAlreadyExists] = 'Phonenumber already exists'
+    statusMessages[StatusCodes.InvalidUsernamePassword] = 'Invalid user name password'
+
 
 
     
