@@ -14,7 +14,7 @@ urlpatterns = patterns('',
     url(r'^user/signup/password/$', UserViews.signup_password),
     url(r'^user/signup/$', UserViews.signup),
     url(r'^user/login/$', UserViews.login),
-    #url(r'/user/logout', UserViews.logout),
+    url(r'^user/logout/$', UserViews.logout),
     #url(r'/user/profile/view', UserViews.profile_view),
     #url(r'/user/profile/edit', UserViews.profile_edit),
     

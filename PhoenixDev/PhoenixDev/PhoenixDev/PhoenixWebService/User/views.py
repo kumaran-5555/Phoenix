@@ -195,7 +195,7 @@ def signup_password(request):
     Helpers.logger.debug('User added successfully with phoneNumber {0}'.format(phoneNumber))
     response = HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, 'added'))   
 
-    create_session(response, phoneNumber)
+    Helpers.create_user_session(request, phoneNumber)
 
     return response
 
@@ -205,7 +205,6 @@ def login(request):
 
     password = request.POST.get('password', False)
     phoneNumber =  request.POST.get('phoneNumber', False)
-
 
     # we share the otp with user as secret, only the users
     # who have correct otp and phonenumber match and valid
@@ -240,31 +239,21 @@ def login(request):
 
     # create session here 
     response = HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, ''))
-    create_session(response, phoneNumber)
+    
+    Helpers.create_user_session(request, phoneNumber)
 
     return response
 
 
+def logout(request):
+    if request.method != 'GET':
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NotGetRequest, ''))
 
+    if not Helpers.validate_user_session(request):
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidUserSession, ''))
 
+    Helpers.delete_user_session(request)
 
-def create_session(response, phoneNumber):
-    '''
-        creates session in request
-    '''
+    return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, 'logged out'))
 
-    # set session 
-    response.set_cookie('phoneNumber', phoneNumber)
-    response.set_cookie('loggedInTime', timezone.now())
-    response.set_cookie('lastActivityTime', timezone.now())
-
-
-def validate_session(request):
-    '''
-        validates session and updates timestamps
-        if required
-
-        returns boolean
-    '''
-    pass
 
