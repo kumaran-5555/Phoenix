@@ -10,7 +10,7 @@ urlpatterns = patterns('',
     # we will reusage signup, because the functionality is same
     url(r'^user/signup/resendotp/$', UserViews.signup),
 
-    url(r'^user/signup/optvalidation/$', UserViews.signup_optvalidation),
+    url(r'^user/signup/otpvalidation/$', UserViews.signup_optvalidation),
     url(r'^user/signup/password/$', UserViews.signup_password),
     url(r'^user/signup/$', UserViews.signup),
     url(r'^user/login/$', UserViews.login),
