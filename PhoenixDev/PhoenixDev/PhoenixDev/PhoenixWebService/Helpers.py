@@ -5,6 +5,8 @@ import Settings
 
 from django.utils import timezone
 import datetime
+from PhoenixDev.PhoenixWebService import *
+
 
 logger = logging.getLogger(Settings.LOGGERNAME)
 
@@ -23,6 +25,8 @@ class StatusCodes():
     InvalidUsernamePassword = 7
     NotGetRequest = 8
     InvalidUserSession = 9
+    InvalidProductId = 10
+    InvalidRatingValue = 11
 
 
     
@@ -40,6 +44,8 @@ class StatusMessage():
     statusMessages[StatusCodes.InvalidUsernamePassword] = 'Invalid user name password'
     statusMessages[StatusCodes.NotGetRequest] = 'Not get request'
     statusMessages[StatusCodes.InvalidUserSession] = 'Invalid user session'
+    statusMessages[StatusCodes.InvalidProductId] = 'Invalid product id'
+    statusMessages[StatusCodes.InvalidRatingValue] = 'Invalid rating value'
 
 
 
@@ -64,13 +70,14 @@ def create_json_output(statusCode, data):
 
 
 
-def create_user_session(request, phoneNumber):
+def create_user_session(request, phoneNumber, userId):
     '''
-        creates session in request
+        creates session in request, assumes valid userId and phoneNumber
     '''
 
     # set session 
     request.session['phoneNumber'] = phoneNumber
+    request.session['userId'] = User.models.Users.objects.get(id=userId)
     request.session['loggedInTime'] = timezone.now()
     request.session['lastActivityTime'] = timezone.now()
     request.session['type'] = Settings.USER_TYPE
@@ -87,7 +94,7 @@ def validate_user_session(request):
         returns boolean
     '''
     
-    if request.session.get('phoneNumber', False):
+    if request.session.get('userId', False):
         # update last activity in steps
         # every x mins update last activity, this is to keep session active
         now = timezone.now()

@@ -195,7 +195,7 @@ def signup_password(request):
     Helpers.logger.debug('User added successfully with phoneNumber {0}'.format(phoneNumber))
     response = HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, 'added'))   
 
-    Helpers.create_user_session(request, phoneNumber)
+    Helpers.create_user_session(request, phoneNumber, row.id)
 
     return response
 
@@ -240,7 +240,7 @@ def login(request):
     # create session here 
     response = HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, ''))
     
-    Helpers.create_user_session(request, phoneNumber)
+    Helpers.create_user_session(request, phoneNumber, row.id)
 
     return response
 

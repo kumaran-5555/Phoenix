@@ -17,7 +17,8 @@ urlpatterns = patterns('',
     url(r'^user/logout/$', UserViews.logout),
     #url(r'/user/profile/view', UserViews.profile_view),
     #url(r'/user/profile/edit', UserViews.profile_edit),
+    url(r'^user/rateproduct/$', ProductViews.rate_product),
     
-    url(r'^product_ratings/(?P<product_id>[0-9]+)/', ProductViews.product_ratings),
+   # url(r'^product_ratings/(?P<product_id>[0-9]+)/', ProductViews.product_ratings),
     
 )
