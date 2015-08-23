@@ -1,9 +1,11 @@
 ﻿# Create your views here.
 
-from django.http import HttpResponse
 from PhoenixDev.PhoenixWebService.User.models import *
 from PhoenixDev.PhoenixWebService.Product.models import *
 from PhoenixDev.PhoenixWebService import Helpers
+from PhoenixDev.PhoenixWebService import Settings
+from django.db import IntegrityError
+from django.http import HttpResponse
 import json
 
 
@@ -48,12 +50,49 @@ def product_list(request):
             print prodRating.ratingVal    
     return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success,relatedInfo))
 
+def rate_product(request):
+    
+    if request.method != 'POST':
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NotPostRequest, ''))
+    
+    if not Helpers.validate_user_session(request):
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidUserSession, ''))
 
-def product_ratings(request, product_id):
-    x = Users.objects.all()
+
+    productId = request.POST.get('productId', False)
+
+    if not productId or not productId.isdigit():
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidProductId, productId))
 
 
-    return HttpResponse('Hello world' + ','.join([i.userName for i in x]))
+    ratingVal = request.POST.get('ratingVal', False)
+
+    if not ratingVal or not ratingVal.isdigit():
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidRatingValue, ratingVal))
+
+    ratingVal = int(ratingVal)
+    productId = int(productId)
+    
+    if ratingVal < 0 or ratingVal > 5:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidRatingValue, ratingVal))
+
+
+    try:
+        product = Product.models.Products.objects.get(id = productId)
+
+    except Product.models.Products.DoesNotExist:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidProductId, productId))
+
+
+    # session is validate, safe to take userId from session
+    Product.models.ProductRatings.objects.create(productId = product, userId = request.session['userId'], ratingVal = ratingVal)
+    
+
+    return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, ''))
+
+
+
+
 
 
 
