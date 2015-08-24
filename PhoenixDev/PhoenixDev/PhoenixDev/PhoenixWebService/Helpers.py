@@ -113,7 +113,10 @@ def validate_user_session(request):
         
 
         return True
-    
+    # remove bad sessions - this fixed in the later version. Happy !
+    request.COOKIES = {}
+    request.session.flush()
+
     return False
 
 def delete_user_session(request):
