@@ -17,9 +17,10 @@ urlpatterns = patterns('',
     url(r'^user/logout/$', UserViews.logout),
     #url(r'/user/profile/view', UserViews.profile_view),
     #url(r'/user/profile/edit', UserViews.profile_edit),
+    url(r'^product/details/$', ProductViews.product_specs,name='product_specs'),
+    url(r'^product/list/$', ProductViews.product_list, name='product_list'),
+    url(r'^product_ratings/(?P<product_id>[0-9]+)/', ProductViews.product_ratings),
     url(r'^user/rateproduct/$', ProductViews.rate_product),
     url(r'^user/reviewproduct/$', ProductViews.review_product),
-    
-   # url(r'^product_ratings/(?P<product_id>[0-9]+)/', ProductViews.product_ratings),
     
 )
