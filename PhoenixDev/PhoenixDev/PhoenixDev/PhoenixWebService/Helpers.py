@@ -27,6 +27,8 @@ class StatusCodes():
     InvalidUserSession = 9
     InvalidProductId = 10
     InvalidRatingValue = 11
+    InvalidBrandId = 12
+    NoSpecsFound = 13
 
 
     
@@ -46,6 +48,8 @@ class StatusMessage():
     statusMessages[StatusCodes.InvalidUserSession] = 'Invalid user session'
     statusMessages[StatusCodes.InvalidProductId] = 'Invalid product id'
     statusMessages[StatusCodes.InvalidRatingValue] = 'Invalid rating value'
+    statusMessages[StatusCodes.InvalidBrandId] = 'Invalid brand id'
+    statusMessages[StatusCodes.NoSpecsFound] = 'Specs not found for the product'
 
 
 

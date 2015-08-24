@@ -1,6 +1,13 @@
 ﻿from django.db import models
 from PhoenixDev.PhoenixWebService import *
 
+'''
+
+CONVENTION :
+ -> Category taxonomy always on TOP.
+ -> Two newlines separating every class.
+
+'''
 
 class CategoryTaxonomy(models.Model):
     '''
@@ -11,14 +18,6 @@ class CategoryTaxonomy(models.Model):
     parentCategory = models.ForeignKey('CategoryTaxonomy')
     categoryName = models.CharField(max_length=200)
 
-class ProductBrands(models.Model):
-    '''
-        captures brand-category mapping,
-        we can use this is sending bargain request to 
-        selected seller who offer a specific brand in that category
-    '''
-    brandName = models.CharField(max_length=200)
-    categoryId = models.ForeignKey(CategoryTaxonomy)
 
 class Products(models.Model):
     '''
@@ -29,34 +28,26 @@ class Products(models.Model):
     # TODO - supports more than category 
     productCategoryId = models.ForeignKey(CategoryTaxonomy)
     productName = models.CharField(max_length=200)
+    productBrandId = models.ForeignKey('ProductBrands')
+
     productMinPrice = models.IntegerField()
     productMaxPrice = models.IntegerField()
-    productBrandId = models.ForeignKey(ProductBrands)
 
+    # Run a batch script at regular interval to populate the following
+    # TODO : Needs migrate and makemigration after adding the following
+    #productAvgRating = models.FloatField()
+    #productTotalRatings = models.IntegerField()
+    #prodcutNumReviews = models.IntegerField()
+    
 
-
-
-class SellerProductOfferings(models.Model):
+class ProductBrands(models.Model):
     '''
-        we allow seller to fill this or we will learn from his/her
-        bargain replies
+        captures brand-category mapping,
+        we can use this is sending bargain request to 
+        selected seller who offer a specific brand in that category
     '''
-    sellerId = models.ForeignKey(Seller.models.Sellers)
-    productId = models.ForeignKey(Products)
-
-class SellerCategoryOfferings(models.Model):
-    '''
-        seller offerings of product categories
-    '''
-    sellerId = models.ForeignKey(Seller.models.Sellers)
+    brandName = models.CharField(max_length=200)
     categoryId = models.ForeignKey(CategoryTaxonomy)
-
-class SellerBrandOfferings(models.Model):
-    '''
-        seller offerings of brands
-    '''
-    sellerId = models.ForeignKey(Seller.models.Sellers)
-    brandId = models.ForeignKey(ProductBrands)
 
 
 class ProductSpecs(models.Model):
@@ -66,7 +57,6 @@ class ProductSpecs(models.Model):
     productId = models.ForeignKey(Products)
     key = models.CharField(max_length=200)
     value = models.CharField(max_length=1024)
-
 
 
 class ProductRatings(models.Model):
@@ -82,7 +72,8 @@ class ProductRatings(models.Model):
     # let the backend add the timestamp during creation
     ratingTimestamp = models.DateTimeField(auto_now_add=True)
 
-class ProductReview(models.Model):
+
+class ProductReviews(models.Model):
     '''
         user product review
     '''
@@ -94,3 +85,28 @@ class ProductReview(models.Model):
 
     # let the backend add the timestamp during creation
     ratingTimestamp = models.DateTimeField(auto_now_add=True)
+
+
+class SellerCategoryOfferings(models.Model):
+    '''
+        seller offerings of product categories
+    '''
+    sellerId = models.ForeignKey(Seller.models.Sellers)
+    categoryId = models.ForeignKey(CategoryTaxonomy)
+
+    
+class SellerProductOfferings(models.Model):
+    '''
+        we allow seller to fill this or we will learn from his/her
+        bargain replies
+    '''
+    sellerId = models.ForeignKey(Seller.models.Sellers)
+    productId = models.ForeignKey(Products)
+
+
+class SellerBrandOfferings(models.Model):
+    '''
+        seller offerings of brands
+    '''
+    sellerId = models.ForeignKey(Seller.models.Sellers)
+    brandId = models.ForeignKey(ProductBrands)

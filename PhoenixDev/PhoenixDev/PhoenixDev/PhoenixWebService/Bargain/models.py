@@ -1,6 +1,4 @@
 ﻿from django.db import models
-
-
 from PhoenixDev.PhoenixWebService import *
 
 
@@ -50,10 +48,11 @@ class BargainResponse(models.Model):
     offeredPrice = models.IntegerField()
     comment = models.CharField(max_length=256)
     timestamp = models.DateTimeField(auto_now_add=True)
-    # let db add timestamp, we use now + expiary in business logic to compute
+    # let db add timestamp, we use now + expiry in business logic to compute
     # expiaryTimestamp
     expiaryTimestamp = models.DateTimeField() 
   
+
 class BargainOfferedFeatures(models.Model):
     '''
         store what features seller offered for a

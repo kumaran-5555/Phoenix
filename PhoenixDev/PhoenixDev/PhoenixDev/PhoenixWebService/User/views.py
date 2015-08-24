@@ -82,10 +82,6 @@ def signup(request):
     return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, {'otpValue': otpValue }))
   
 
-
-
-
-
 def signup_resendotp(request):
     if request.method != 'POST':
         return HttpResponseNotFound()
