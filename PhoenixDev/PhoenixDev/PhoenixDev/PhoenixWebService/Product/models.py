@@ -35,9 +35,9 @@ class Products(models.Model):
 
     # Run a batch script at regular interval to populate the following
     # TODO : Needs migrate and makemigration after adding the following
-    #productAvgRating = models.FloatField()
-    #productTotalRatings = models.IntegerField()
-    #prodcutNumReviews = models.IntegerField()
+    productAvgRating = models.FloatField()
+    productTotalRatings = models.IntegerField()
+    prodcutNumReviews = models.IntegerField()
     
 
 class ProductBrands(models.Model):
