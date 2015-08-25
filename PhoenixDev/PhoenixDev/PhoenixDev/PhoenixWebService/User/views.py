@@ -23,7 +23,7 @@ import hashlib
 
 def forgotpassword(request):
     '''
-        same as signup, but the phonenumber must be users table
+        same as signup, but the phonenumber must be in users table.
         after this follow, otpvalidation, password steps as in signup
     '''
 
