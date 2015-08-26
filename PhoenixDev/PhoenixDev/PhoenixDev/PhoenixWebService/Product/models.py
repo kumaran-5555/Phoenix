@@ -77,14 +77,21 @@ class ProductReviews(models.Model):
     '''
         user product review
     '''
-    # change to forieng key
+    # change to foriegn key
     productId = models.ForeignKey(Products)
-    # change to forieng key
+    # change to foriegn key
     userId = models.ForeignKey(User.models.Users)
     reviewVal = models.CharField(max_length=1024)
 
     # let the backend add the timestamp during creation
     ratingTimestamp = models.DateTimeField(auto_now_add=True)
+
+    # Meta model to implicitly handle ordeing options
+    class Meta :
+
+        # Default ordering - recent ones on top.
+        ordering = ['ratingTimestamp']
+
 
 
 class SellerCategoryOfferings(models.Model):

@@ -29,6 +29,7 @@ class StatusCodes():
     InvalidRatingValue = 11
     InvalidBrandId = 12
     NoSpecsFound = 13
+    NoReviewsFound = 14
 
 
     
@@ -50,6 +51,7 @@ class StatusMessage():
     statusMessages[StatusCodes.InvalidRatingValue] = 'Invalid rating value'
     statusMessages[StatusCodes.InvalidBrandId] = 'Invalid brand id'
     statusMessages[StatusCodes.NoSpecsFound] = 'Specs not found for the product'
+    statusMessages[StatusCodes.NoReviewsFound] = 'Reviews not found for the product'
 
 
 

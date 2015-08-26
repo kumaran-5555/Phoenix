@@ -15,9 +15,9 @@ def product_specs(request):
      if request.method != 'GET':
         return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NotGetRequest, ''))
     
-     ## Allow only if the user session is active
-     #if not Helpers.validate_user_session(request):
-     #   return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidUserSession, ''))
+     # Allow only if the user session is active.
+     if not Helpers.validate_user_session(request):
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidUserSession, ''))
      
      productId = request.GET.get('productId')
 
@@ -44,10 +44,6 @@ def product_specs(request):
      allDetailsDict['Product Name'] = product.productName
      allDetailsDict['Brand Name']   = brand.brandName
 
-     # TODO : Move the below two lines to product listing method 
-     allDetailsDict['Product Min Price'] = str(product.productMinPrice)
-     allDetailsDict['Product Max Price'] = str(product.productMaxPrice)
-
      # Filter to fetch multiple objects as opposed to get
      try :
          specs = ProductSpecs.objects.filter(productId_id=productId)
@@ -61,6 +57,64 @@ def product_specs(request):
         
      return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, allDetailsDict))
 
+
+def product_reviews(request):
+
+     # Validate if its a GET request 
+     if request.method != 'GET':
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NotGetRequest, ''))
+    
+     # Allow only if the user session is active.
+     if not Helpers.validate_user_session(request):
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidUserSession, ''))
+     
+     productId = request.GET.get('productId')
+
+     # Validate the product ID
+     if not productId or not productId.isdigit():
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidProductId, productId))
+
+     
+     topNReviews = []
+     startFound = request.GET.get('from')
+     endFound   = request.GET.get('to')
+     defaultNumReviews = 10
+
+      # Check if from/to parameters are set in GET request, else return 10 recent reviews by default
+     if not startFound and not endFound :
+         try:
+            topNReviews = ProductReviews.objects.filter(productId_id=productId)[:defaultNumReviews]
+            
+         except ProductReviews.DoesNotExist :
+             return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NoReviewsFound, ''))
+
+     sendReviews = []
+     if startFound :
+         start = int(startFound)
+
+         if not endFound :
+
+                try:
+                    topNReviews = ProductReviews.objects.filter(productId_id=productId)[start : start + defaultNumReviews]
+                    
+                except ProductReviews.DoesNotExist:
+                    return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NoReviewsFound, ''))
+         else :
+               # Both from and to are present
+                end = int(endFound)
+
+                try:
+                    topNReviews = ProductReviews.objects.filter(productId_id=productId)[start : end]
+
+                except ProductReviews.DoesNotExist:
+                    return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NoReviewsFound, ''))
+         
+         
+     for r in topNReviews :
+         sendReviews.append(r.reviewVal)
+        
+     return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, sendReviews))
+              
 
 def product_list(request):
     
@@ -83,6 +137,10 @@ def product_list(request):
     #    else :
     #        #exception
     #        raise AssertionError
+
+    allDetailsDict = dict()
+    allDetailsDict['Product Min Price'] = str(product.productMinPrice)
+    allDetailsDict['Product Max Price'] = str(product.productMaxPrice)
 
     products = Products.objects.filter(productCategoryId_id='6')
     for product in products :
