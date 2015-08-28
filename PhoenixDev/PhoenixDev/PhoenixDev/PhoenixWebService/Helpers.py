@@ -30,7 +30,8 @@ class StatusCodes():
     InvalidBrandId = 12
     NoSpecsFound = 13
     NoReviewsFound = 14
-
+    InvalidSellerName = 15
+    InvalidCityName = 16
 
     
 
@@ -52,6 +53,9 @@ class StatusMessage():
     statusMessages[StatusCodes.InvalidBrandId] = 'Invalid brand id'
     statusMessages[StatusCodes.NoSpecsFound] = 'Specs not found for the product'
     statusMessages[StatusCodes.NoReviewsFound] = 'Reviews not found for the product'
+    statusMessages[StatusCodes.InvalidSellerName] = 'Invalid seller name'
+    statusMessages[StatusCodes.InvalidCityName] = 'Invalid city name'
+
 
 
 

@@ -1,6 +1,7 @@
 ﻿from django.conf.urls import patterns, include, url
 from PhoenixDev.PhoenixWebService.Product import views as ProductViews
 from PhoenixDev.PhoenixWebService.User import views as UserViews
+from PhoenixDev.PhoenixWebService.Seller import views as SellerViews
 
 urlpatterns = patterns('',
     # Examples:
@@ -8,8 +9,16 @@ urlpatterns = patterns('',
     # url(r'^blog/', include('blog.urls')),
 
     # we will reusage signup, because the functionality is same
-    url(r'^user/signup/resendotp/$', UserViews.signup),
+    url(r'^seller/signup/resendotp/$', SellerViews.signup),
+    url(r'^seller/signup/otpvalidation/$', SellerViews.signup_optvalidation),
+    #url(r'^seller/signup/password/$', SellerViews.signup_password),
+    url(r'^seller/signup/$', SellerViews.signup),
+    #url(r'^seller/login/$', SellerViews.login),
+    #url(r'^seller/logout/$', SellerViews.logout),
+    
 
+
+    url(r'^user/signup/resendotp/$', UserViews.signup),
     url(r'^user/signup/otpvalidation/$', UserViews.signup_optvalidation),
     url(r'^user/signup/password/$', UserViews.signup_password),
     url(r'^user/signup/$', UserViews.signup),

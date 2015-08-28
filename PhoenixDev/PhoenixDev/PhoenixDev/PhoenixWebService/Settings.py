@@ -10,3 +10,9 @@ SECRET_KEY = '+spp&+9d7v%un8%xo@&=oni-)dxv2ihj930834hjug4)o2h5ae'
 USER_TYPE = 'User'
 
 USER_SESSION_UPDATE_TIME = 600
+
+SELLER_NAME_REGEX_PATTERN = '^[A-Za-z0-9\-&@]+$'
+
+EMAIL_REGEX_PATTERN = '^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$'
+
+
