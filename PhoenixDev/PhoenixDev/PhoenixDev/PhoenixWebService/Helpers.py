@@ -32,7 +32,12 @@ class StatusCodes():
     NoReviewsFound = 14
     InvalidSellerName = 15
     InvalidCityName = 16
-
+    InvalidAddress = 17
+    InvalidLatitude = 18
+    InvalidLongitude = 19
+    InvalidMailId = 20
+    InvalidWebsite = 21
+    InvalidDescription = 22
     
 
 
@@ -55,6 +60,14 @@ class StatusMessage():
     statusMessages[StatusCodes.NoReviewsFound] = 'Reviews not found for the product'
     statusMessages[StatusCodes.InvalidSellerName] = 'Invalid seller name'
     statusMessages[StatusCodes.InvalidCityName] = 'Invalid city name'
+    statusMessages[StatusCodes.InvalidAddress] = 'Invalid address'
+    statusMessages[StatusCodes.InvalidLatitude] = 'Invalid latitude'
+    statusMessages[StatusCodes.InvalidLongitude] = 'Invalid longitude'
+    statusMessages[StatusCodes.InvalidMailId] = 'Invalid mail id'
+    statusMessages[StatusCodes.InvalidWebsite] = 'Invalid website'
+    statusMessages[StatusCodes.InvalidDescription] = 'Invalid description'
+
+
 
 
 

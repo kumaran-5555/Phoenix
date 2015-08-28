@@ -2,6 +2,8 @@
 from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
 from django.http import HttpResponseNotFound
+from django.core import validators
+
 
 import json
 
@@ -263,8 +265,55 @@ def signup_password(request):
         return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidCityName, cityName))
 
 
+    #TODO - address validation ?
+    if not address or len(address) > 300:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidAddress, address))
+
+    # http://stackoverflow.com/questions/6536232/validate-latitude-and-longitude
+    if not latitude:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidLatitude, latitude))
+    try:
+        latitude = float(latitude)
+    except ValueError:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidLatitude, latitude))
+
+    if latitude < -90 or latitude > 90:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidLatitude, latitude))
 
 
+
+    if not longitude:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidLongitude, longitude))
+    try:
+        longitude = float(longitude)
+    except ValueError:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidLongitude, longitude))
+
+    if longitude < -180 or longitude > 180:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidLongitude, longitude))
+
+
+    if not mailId or not re.match(Settings.EMAIL_REGEX_PATTERN, mailId):
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidMailId, mailId))
+
+
+    if not website:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidWebsite, website))
+
+    urlValidator = validators.URLValidator(verify_exists=True)
+
+    try:
+        urlValidator(website)
+    except ValidationError:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidWebsite, website))
+
+
+    # TODO - description validation ?
+
+    if not description:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidDescription, description))
+
+    
 
     # make the otp expired, the otp is job is done
     
