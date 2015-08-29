@@ -1,5 +1,6 @@
 ﻿import json
 import logging
+import re
 
 import Settings
 
@@ -39,6 +40,7 @@ class StatusCodes():
     InvalidWebsite = 21
     InvalidDescription = 22
     InvalidSellerSession = 23
+    NoResultsFound = 24
     
 
 
@@ -68,13 +70,25 @@ class StatusMessage():
     statusMessages[StatusCodes.InvalidWebsite] = 'Invalid website'
     statusMessages[StatusCodes.InvalidDescription] = 'Invalid description'
     statusMessages[StatusCodes.InvalidSellerSession] = 'Invalid seller session'
+    statusMessages[StatusCodes.NoResultsFound] = 'No results found!'
 
 
 
 
 
 
-
+def normalize_query(query_string,
+                    findterms=re.compile(r'"([^"]+)"|(\S+)').findall,
+                    normspace=re.compile(r'\s{2,}').sub):
+    ''' Splits the query string in invidual keywords, getting rid of unecessary spaces
+        and grouping quoted words together.
+        Example:
+        
+        >>> normalize_query('  some random  words "with   quotes  " and   spaces')
+        ['some', 'random', 'words', 'with quotes', 'and', 'spaces']
+    
+    '''
+    return [normspace(' ', (t[0] or t[1]).strip()) for t in findterms(query_string)] 
 
     
 

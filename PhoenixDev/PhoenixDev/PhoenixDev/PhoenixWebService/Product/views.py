@@ -5,6 +5,7 @@ from PhoenixDev.PhoenixWebService.Product.models import *
 from PhoenixDev.PhoenixWebService import Helpers
 from PhoenixDev.PhoenixWebService import Settings
 from django.db import IntegrityError
+from django.db.models import Q
 from django.http import HttpResponse
 import json
 
@@ -148,6 +149,59 @@ def product_list(request):
         for prodRating in relatedProductRatings :
             print prodRating.ratingVal    
     return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success,relatedInfo))
+
+
+def get_query(query_string, search_fields):
+    ''' Returns a query, that is a combination of Q objects. That combination
+        aims to search keywords within a model by testing the given search fields.
+    '''
+    query = None # Query to search for every search term        
+    terms = Helpers.normalize_query(query_string)
+    for term in terms:
+        or_query = None # Query to search for a given term in each field
+        for field_name in search_fields:
+            q = Q(**{"%s__icontains" % field_name: term})
+            if or_query is None:
+                or_query = q
+            else:
+                or_query = or_query | q
+        if query is None:
+            query = or_query
+        else:
+            query = query & or_query
+    return query
+
+
+def product_search(request):
+
+    if request.method != 'GET':
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NotGetRequest, ''))
+
+    if not Helpers.validate_user_session(request):
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidUserSession, ''))
+
+    query_string = ''
+
+    found_entries = None
+    if ('q' in request.GET) and request.GET['q'].strip():
+        query_string = request.GET['q']
+        
+        entry_query = get_query(query_string, ['productName'])
+
+        try:
+            # Search based on average rating
+            found_entries = Products.objects.filter(entry_query).order_by('-productAvgRating')
+                    
+        except Products.DoesNotExist:
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NoResultsFound, ''))
+        
+        
+     
+    entries = []
+    for results in found_entries :
+        entries.append(results.productName)
+
+    return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, entries))
 
 
 def rate_product(request):
