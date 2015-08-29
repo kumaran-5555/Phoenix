@@ -18,4 +18,6 @@ SELLER_NAME_REGEX_PATTERN = '^[A-Za-z0-9\-&@]+$'
 
 EMAIL_REGEX_PATTERN = '^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$'
 
+DEFAULT_LISTING_COUNT = 10
+
 

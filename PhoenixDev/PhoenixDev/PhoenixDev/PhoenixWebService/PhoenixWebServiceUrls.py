@@ -15,7 +15,7 @@ urlpatterns = patterns('',
     url(r'^seller/signup/$', SellerViews.signup),
     url(r'^seller/login/$', SellerViews.login),
     url(r'^seller/logout/$', SellerViews.logout),
-   # url(r'^seller/forgotpassword/$', SellerViews.forgot_password),
+    url(r'^seller/forgotpassword/$', SellerViews.forgot_password),
     url(r'^seller/resetpassword/$', SellerViews.reset_password),
 
     
@@ -29,6 +29,8 @@ urlpatterns = patterns('',
     url(r'^user/logout/$', UserViews.logout),
     url(r'^user/forgotpassword/$', UserViews.forgot_password),
     url(r'^user/resetpassword/$', UserViews.reset_password),
+    
+    
 
     #url(r'/user/profile/view', UserViews.profile_view),
     #url(r'/user/profile/edit', UserViews.profile_edit),
@@ -36,8 +38,8 @@ urlpatterns = patterns('',
     url(r'^product/list/$', ProductViews.product_list, name='product_list'),
     url(r'^product/reviews/$', ProductViews.product_reviews, name='product_reviews'),
     url(r'^product/search/$',ProductViews.product_search,name='product_search'),
-    #url(r'^product_ratings/(?P<product_id>[0-9]+)/', ProductViews.product_ratings),
     url(r'^user/rateproduct/$', ProductViews.rate_product),
-    url(r'^user/reviewproduct/$', ProductViews.review_product),
+    url(r'^user/reviewproduct/$', ProductViews.review_product)
+    
     
 )

@@ -40,7 +40,8 @@ class StatusCodes():
     InvalidWebsite = 21
     InvalidDescription = 22
     InvalidSellerSession = 23
-    NoResultsFound = 24
+    NoProductsFound = 24
+    InvalidCategoryID = 25
     
 
 
@@ -70,7 +71,8 @@ class StatusMessage():
     statusMessages[StatusCodes.InvalidWebsite] = 'Invalid website'
     statusMessages[StatusCodes.InvalidDescription] = 'Invalid description'
     statusMessages[StatusCodes.InvalidSellerSession] = 'Invalid seller session'
-    statusMessages[StatusCodes.NoResultsFound] = 'No results found!'
+    statusMessages[StatusCodes.NoProductsFound] = 'No products found'
+    statusMessages[StatusCodes.InvalidCategoryID] = "Invalid Category ID"
 
 
 

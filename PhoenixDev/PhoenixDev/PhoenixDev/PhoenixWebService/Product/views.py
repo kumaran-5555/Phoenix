@@ -79,14 +79,21 @@ def product_reviews(request):
      topNReviews = []
      startFound = request.GET.get('from')
      endFound   = request.GET.get('to')
-     defaultNumReviews = 10
 
       # Check if from/to parameters are set in GET request, else return 10 recent reviews by default
      if not startFound and not endFound :
          try:
-            topNReviews = ProductReviews.objects.filter(productId_id=productId)[:defaultNumReviews]
+            topNReviews = ProductReviews.objects.filter(productId_id=productId)[:Settings.DEFAULT_LISTING_COUNT]
             
          except ProductReviews.DoesNotExist :
+             return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NoReviewsFound, ''))
+     
+     if not startFound and endFound :
+        try:
+           end = int(endFound)
+           topNProducts = ProductReviews.objects.filter(productId_id=productId)[:end]
+           
+        except ProductReviews.DoesNotExist :
              return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NoReviewsFound, ''))
 
      sendReviews = []
@@ -96,7 +103,7 @@ def product_reviews(request):
          if not endFound :
 
                 try:
-                    topNReviews = ProductReviews.objects.filter(productId_id=productId)[start : start + defaultNumReviews]
+                    topNReviews = ProductReviews.objects.filter(productId_id=productId)[start : start + Settings.DEFAULT_LISTING_COUNT]
                     
                 except ProductReviews.DoesNotExist:
                     return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NoReviewsFound, ''))
@@ -125,31 +132,75 @@ def product_list(request):
     if not Helpers.validate_user_session(request):
         return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidUserSession, ''))
 
-    paramsDict = {"sortname" : "popularity", "sortvalue" : "descending"}
-    getParamDict = request.GET
-     
-    listOfParams = ['start','end','filtername1','filtervalue1', 'filtername2','filtervalue2','category_id']
+    categoryId = request.GET.get('categoryId')
+
+    # Validate the category ID
+    if not categoryId or not categoryId.isdigit():
+       return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidCategoryID, categoryId))
+
+
+    startFound = request.GET.get('from')
+    endFound   = request.GET.get('to')
+    orderBy = ''
+
+    # Can be extended to any kind of filtering/sorting based on Product Model attributes
+    availableFilters = ['brandFilter', 'priceFilter']
+    availableOrderings = ['popularity', 'reviewCount']
+
+    # TODO : Use Q() objects to efficiently handle multiple filters and sortby.
+    # for filter in availableFilters :
+    #    if filter in request.GET.keys() :
+
+
+    topNProducts = []
+    # Check if from/to parameters are set in GET request, else return 10 popular products by default
+    if not startFound and not endFound :
+        try:
+           topNProducts = Products.objects.filter(productCategoryId_id=categoryId)[:Settings.DEFAULT_LISTING_COUNT]
+           
+        except Products.DoesNotExist :
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NoProductsFound, categoryId))
+
+
+    if not startFound and endFound :
+        try:
+           end = int(endFound)
+           topNProducts = Products.objects.filter(productCategoryId_id=categoryId)[:end]
+           
+        except Products.DoesNotExist :
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NoProductsFound, categoryId))
+
+    if startFound :
+        start = int(startFound)
+
+        if not endFound :
+
+               try:
+                   topNProducts = Products.objects.filter(productCategoryId_id=categoryId)[start : start + Settings.DEFAULT_LISTING_COUNT]
+                    
+               except Products.DoesNotExist:
+                   return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NoProductsFound, categoryId))
+        else :
+               # Both from and to are present
+               end = int(endFound)
+
+               try:
+                   topNProducts = Products.objects.filter(productCategoryId_id=categoryId)[start : end]
+
+               except Products.DoesNotExist:
+                   return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NoProductsFound, ''))
+         
     
-    #for param in listOfParams:
-    #    if param in getParamDict.keys() and param not in paramsDict.keys() :
-    #            paramsDict[param] = getParamDict[param]
-    #    elif param in getParamDict.keys() and param in paramsDict.keys() :
-    #            paramsDict[param] = getParamDict[param]
-    #    else :
-    #        #exception
-    #        raise AssertionError
+    sendNProducts = []
 
-    allDetailsDict = dict()
-    allDetailsDict['Product Min Price'] = str(product.productMinPrice)
-    allDetailsDict['Product Max Price'] = str(product.productMaxPrice)
+    for item in topNProducts :
+        sendNProducts.append([item.productName, item.productMinPrice, item.productMaxPrice, item.productAvgRating] )
+        
+        
+    return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, sendNProducts))
+     
 
-    products = Products.objects.filter(productCategoryId_id='6')
-    for product in products :
-        relatedProductRatings = product.productratings_set.all()
-        for prodRating in relatedProductRatings :
-            print prodRating.ratingVal    
-    return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success,relatedInfo))
-
+    
 
 def get_query(query_string, search_fields):
     ''' Returns a query, that is a combination of Q objects. That combination
@@ -193,7 +244,7 @@ def product_search(request):
             found_entries = Products.objects.filter(entry_query).order_by('-productAvgRating')
                     
         except Products.DoesNotExist:
-            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NoResultsFound, ''))
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NoProductsFound, ''))
         
         
      

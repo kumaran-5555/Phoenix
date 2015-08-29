@@ -30,6 +30,11 @@ class Products(models.Model):
     productName = models.CharField(max_length=200)
     productBrandId = models.ForeignKey('ProductBrands')
 
+    class Meta :
+
+        # Default ordering - popular ones on top. "-" signifies descending :-)
+        ordering = ['-productAvgRating']
+
     productMinPrice = models.IntegerField()
     productMaxPrice = models.IntegerField()
 
