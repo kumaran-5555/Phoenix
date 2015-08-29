@@ -38,6 +38,7 @@ class StatusCodes():
     InvalidMailId = 20
     InvalidWebsite = 21
     InvalidDescription = 22
+    InvalidSellerSession = 23
     
 
 
@@ -66,6 +67,7 @@ class StatusMessage():
     statusMessages[StatusCodes.InvalidMailId] = 'Invalid mail id'
     statusMessages[StatusCodes.InvalidWebsite] = 'Invalid website'
     statusMessages[StatusCodes.InvalidDescription] = 'Invalid description'
+    statusMessages[StatusCodes.InvalidSellerSession] = 'Invalid seller session'
 
 
 
@@ -152,3 +154,55 @@ def delete_user_session(request):
 
 
 
+
+def create_seller_session(request, phoneNumber, sellerId):
+    '''
+        creates session in request, assumes valid sellerId and phoneNumber
+    '''
+
+    # set session 
+    request.session['phoneNumber'] = phoneNumber
+    request.session['sellerId'] = Seller.models.Sellers.objects.get(id=userId)
+    request.session['loggedInTime'] = timezone.now()
+    request.session['lastActivityTime'] = timezone.now()
+    request.session['type'] = Settings.SELLER_TYPE
+
+    
+def validate_seller_session(request):
+    '''
+        validates session and updates timestamps
+        if required
+
+        returns boolean
+    '''
+    
+    if request.session.get('sellerId', False):
+        # update last activity in steps
+        # every x mins update last activity, this is to keep session active
+        now = timezone.now()
+        delta = datetime.timedelta(Settings.SELLER_SESSION_UPDATE_TIME)
+
+
+        lastActivity = request.session.get('lastActivityTime', False)
+        if not lastActivity:
+            # looks like the session is broken
+            # TODO clear the session
+            logger.debug('Broken session')
+            pass
+        
+        if lastActivity + delta < now:
+            request.session['lastActivityTime'] = timezone.now()       
+        
+
+        return True
+    # remove bad sessions - this fixed in the later version. Happy !
+    request.COOKIES = {}
+    request.session.flush()
+
+    return False
+
+def delete_seller_session(request):
+    '''
+        assumes session is valid
+    '''
+    request.session.flush()

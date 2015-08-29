@@ -11,10 +11,13 @@ urlpatterns = patterns('',
     # we will reusage signup, because the functionality is same
     url(r'^seller/signup/resendotp/$', SellerViews.signup),
     url(r'^seller/signup/otpvalidation/$', SellerViews.signup_optvalidation),
-    #url(r'^seller/signup/password/$', SellerViews.signup_password),
+    url(r'^seller/signup/password/$', SellerViews.signup_password),
     url(r'^seller/signup/$', SellerViews.signup),
-    #url(r'^seller/login/$', SellerViews.login),
-    #url(r'^seller/logout/$', SellerViews.logout),
+    url(r'^seller/login/$', SellerViews.login),
+    url(r'^seller/logout/$', SellerViews.logout),
+    url(r'^seller/forgotpassword/$', SellerViews.forgot_password),
+    url(r'^seller/resetpassword/$', SellerViews.reset_password),
+
     
 
 
@@ -24,6 +27,9 @@ urlpatterns = patterns('',
     url(r'^user/signup/$', UserViews.signup),
     url(r'^user/login/$', UserViews.login),
     url(r'^user/logout/$', UserViews.logout),
+    url(r'^user/forgotpassword/$', UserViews.forgot_password),
+    url(r'^user/resetpassword/$', UserViews.reset_password),
+
     #url(r'/user/profile/view', UserViews.profile_view),
     #url(r'/user/profile/edit', UserViews.profile_edit),
     url(r'^product/details/$', ProductViews.product_specs, name='product_specs'),

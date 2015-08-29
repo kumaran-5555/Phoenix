@@ -21,10 +21,10 @@ import re
 import hashlib
 
 
-def forgotpassword(request):
+def forgot_password(request):
     '''
         same as signup, but the phonenumber must be in users table.
-        after this follow, otpvalidation, password steps as in signup
+        after this follow, otpvalidation, and reset password
     '''
 
     if request.method != 'POST':
@@ -250,13 +250,97 @@ def signup_password(request):
     hash = hashObj.hexdigest()
 
     row, isCreated = User.models.Users.objects.get_or_create(userPrimaryPhone=phoneNumber)
+    if not isCreated:
+        # phonenum already exists
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidPhoneNum, phoneNumber))
 
-    # adding new user password, or resetting password is same
+
+    # adding new user password
     row.userPasswordHash=hash
     row.save()
 
     Helpers.logger.debug('User added successfully with phoneNumber {0}'.format(phoneNumber))
     response = HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, 'added'))   
+
+    Helpers.create_user_session(request, phoneNumber, row.id)
+
+    return response
+
+
+
+def reset_password(request):
+    if request.method != 'POST':
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NotPostRequest, ''))
+
+    password = request.POST.get('password', False)
+    phoneNumber =  request.POST.get('phoneNumber', False)
+    otpValue = request.POST.get('otpValue', False)
+
+    # we share the otp with user as secret, only the users
+    # who have correct otp and phonenumber match and valid
+    # opt are allowed to add password
+
+
+
+    # validation
+    if not  otpValue or len(otpValue) != 5 or not otpValue.isdigit():
+        Helpers.logger.debug('Invalid otpValue {0}'.format(otpValue))
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidOtpValue, otpValue))
+
+
+    if not phoneNumber or len(phoneNumber) != 10 or not phoneNumber.isdigit():
+        Helpers.logger.debug('Invalid phoneNumber {0}'.format(phoneNumber))
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidPhoneNum, phoneNumber))
+
+    if not password or len(password) > 15 or not re.match(Settings.PASSWORD_REGEX_PATTERN, password):
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidPassword, ''))
+    now = timezone.now()
+
+    # validdate otp
+    try:
+        row = User.models.OTPMappings.objects.get(phoneNumber=phoneNumber)
+        # check if opt is correct and valid
+        if row.expiaryDate > now and row.otpValue == otpValue:
+            # valid otp mapping exists
+            Helpers.logger.debug('Otp exists and valid {0}'.format(otpValue))
+            # make the otp expired, the otp is job is done
+            row.expiaryDate = now
+            row.save()
+            
+        else:
+            # already exists and valid no need to update
+            Helpers.logger.debug('Otp exists, but invalid {0}'.format(otpValue))  
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.OtpValidationFailed, {'otpValue': otpValue }))          
+
+
+    except User.models.OTPMappings.DoesNotExist:
+        # create new 
+        Helpers.logger.debug('Otp doesnot exists {0}'.format(otpValue))
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.OtpValidationFailed, otpValue))
+
+
+
+    # create sha512
+    hashObj = hashlib.sha512()
+    hashObj.update(password)
+    hashObj.update(phoneNumber)
+    hashObj.update(Settings.SECRET_KEY)
+    hash = hashObj.hexdigest()
+
+    try:
+        row = User.models.Users.objects.get(userPrimaryPhone=phoneNumber)
+
+    except User.models.User.DoesNotExist:
+        # phonenum doesn't exists, we want phonenumber to be present
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidPhoneNum, phoneNumber))
+
+
+    # resetting password
+    row.userPasswordHash=hash
+    row.save()
+
+    Helpers.logger.debug('Seller password reset success with phoneNumber {0}'.format(phoneNumber))
+    response = HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, 'reset'))   
 
     Helpers.create_user_session(request, phoneNumber, row.id)
 
