@@ -66,7 +66,7 @@ def forgot_password(request):
     # already exists but invalid, create new 
     # doesn't exists, create new
     try:
-        row = User.models.OTPMappings.objects.get(phoneNumber=phoneNumber)
+        row = Seller.models.SellerOTPMappings.objects.get(phoneNumber=phoneNumber)
         # check if the found has expired
         if row.expiaryDate < now:
             # update new
@@ -80,9 +80,9 @@ def forgot_password(request):
             Helpers.logger.debug('Otp exists, not expired, reusing optValue {0}'.format(otpValue))
             
 
-    except User.models.OTPMappings.DoesNotExist:
+    except Seller.models.SellerOTPMappings.DoesNotExist:
         # create new 
-        User.models.OTPMappings.objects.create(phoneNumber = phoneNumber, otpValue=otpValue, expiaryDate=now + delta)
+        Seller.models.SellerOTPMappings.objects.create(phoneNumber = phoneNumber, otpValue=otpValue, expiaryDate=now + delta)
         Helpers.logger.debug('Otp doesnot exists, using optValue {0}'.format(otpValue))
 
     # send otp
@@ -127,7 +127,7 @@ def signup(request):
     # already exists but invalid, create new 
     # doesn't exists, create new
     try:
-        row = User.models.OTPMappings.objects.get(phoneNumber=phoneNumber)
+        row = Seller.models.SellerOTPMappings.objects.get(phoneNumber=phoneNumber)
         # check if the found has expired
         if row.expiaryDate < now:
             # update new
@@ -141,9 +141,9 @@ def signup(request):
             Helpers.logger.debug('Otp exists, not expired, reusing optValue {0}'.format(otpValue))
             
 
-    except User.models.OTPMappings.DoesNotExist:
+    except Seller.models.SellerOTPMappings.DoesNotExist:
         # create new 
-        User.models.OTPMappings.objects.create(phoneNumber = phoneNumber, otpValue=otpValue, expiaryDate=now + delta)
+        Seller.models.SellerOTPMappings.objects.create(phoneNumber = phoneNumber, otpValue=otpValue, expiaryDate=now + delta)
         Helpers.logger.debug('Otp doesnot exists, using optValue {0}'.format(otpValue))
 
     # send otp
@@ -176,7 +176,7 @@ def signup_optvalidation(request):
     now = timezone.now()
     
     try:
-        row = User.models.OTPMappings.objects.get(phoneNumber=phoneNumber)
+        row = Seller.models.SellerOTPMappings.objects.get(phoneNumber=phoneNumber)
         # check if opt is correct and valid
         if row.expiaryDate > now and row.otpValue == otpValue:
             Helpers.logger.debug('Otp exists and valid {0}'.format(otpValue))
@@ -187,7 +187,7 @@ def signup_optvalidation(request):
             return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.OtpValidationFailed, {'otpValue': otpValue}))          
 
 
-    except User.models.OTPMappings.DoesNotExist:
+    except Seller.models.SellerOTPMappings.DoesNotExist:
         # create new 
         Helpers.logger.debug('Otp doesnot exists {0}'.format(otpValue))
         return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.OtpValidationFailed, otpValue))
@@ -235,9 +235,9 @@ def signup_password(request):
 
     # validdate otp
     try:
-        row = User.models.OTPMappings.objects.get(phoneNumber=phoneNumber)
+        otpRow = Seller.models.SellerOTPMappings.objects.get(phoneNumber=phoneNumber)
         # check if opt is correct and valid
-        if row.expiaryDate > now and row.otpValue == otpValue:
+        if otpRow.expiaryDate > now and otpRow.otpValue == otpValue:
             # rest is handled below
             pass             
             
@@ -247,7 +247,7 @@ def signup_password(request):
             return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.OtpValidationFailed, {'otpValue': otpValue }))          
 
 
-    except User.models.OTPMappings.DoesNotExist:
+    except Seller.models.SellerOTPMappings.DoesNotExist:
         # create new 
         Helpers.logger.debug('Otp doesnot exists {0}'.format(otpValue))
         return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.OtpValidationFailed, otpValue))
@@ -293,33 +293,43 @@ def signup_password(request):
     if longitude < -180 or longitude > 180:
         return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidLongitude, longitude))
 
+    # mail is optional, so validate only if provided
 
-    if not mailId or not re.match(Settings.EMAIL_REGEX_PATTERN, mailId):
-        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidMailId, mailId))
+    if mailId:
+        if not re.match(Settings.EMAIL_REGEX_PATTERN, mailId):
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidMailId, mailId))
+    else:
+        mailId = ''
 
 
-    if not website:
-        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidWebsite, website))
+    # website is optional and validate only if provided
+    
+    
 
-    urlValidator = validators.URLValidator(verify_exists=True)
+    if website:
+        urlValidator = validators.URLValidator()
 
-    try:
-        urlValidator(website)
-    except ValidationError:
-        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidWebsite, website))
+        try:
+            urlValidator(website)
+        except ValidationError:
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidWebsite, website))
+    else:
+        website = ''
+        
 
 
     # TODO - description validation ?
-
-    if not description:
-        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidDescription, description))
-
+    # description is optional
     
-
-    # make the otp expired, the otp is job is done
+    if description:
+        if len(description) > 1024:
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidDescription, description))
+    else:
+        description = ''
     
-    row.expiaryDate = now
-    row.save()
+      
+
+
 
     # create sha512
     hashObj = hashlib.sha512()
@@ -327,31 +337,51 @@ def signup_password(request):
     hashObj.update(phoneNumber)
     hashObj.update(Settings.SECRET_KEY)
     hash = hashObj.hexdigest()
+    
+    row = None
+    try:
+        row = Seller.models.Sellers.objects.get(sellerPrimaryPhone=phoneNumber)
 
-    row, isCreated = Seller.models.Sellers.objects.get_or_create(sellerPrimaryPhone=phoneNumber)
+    except Seller.models.Sellers.DoesNotExist:
+        pass
 
-    if not isCreated:
+
+
+    # row already exists 
+    if row:
         # phonenum already exists
-        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidPhoneNum, phoneNumber))
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.PhoneNumAlreadyExists, phoneNumber))
 
+    Helpers.logger.debug('New seller profile phone:{} name:{} city:{} ,\
+            address:{} latitude:{} longitude:{} mailId:{} website:{} desc:{}'.format(\
+                phoneNumber, sellerName, cityName, address, latitude, longitude, mailId, website, description))
+
+    row = Seller.models.Sellers()
 
     # adding new user password 
+    row.sellerPrimaryPhone = phoneNumber
     row.sellerName = sellerName
-    row.cityName = cityName
-    row.address = address
-    row.latitude = latitude
-    row.longitude = longitude
-    row.mailId = mailId
-    row.website = website
-    row.description= description
+    row.sellerCityName = cityName
+    row.sellerAddress = address
+    row.sellerLatitude = latitude
+    row.sellerLongitude = longitude
+    row.sellerMailId = mailId
+    row.sellerWebsite = website
+    row.sellerDescription= description
 
     row.sellerPasswordHash=hash
+
     row.save()
 
     Helpers.logger.debug('seller added successfully with phoneNumber {0}'.format(phoneNumber))
     response = HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, 'added'))   
 
     Helpers.create_seller_session(request, phoneNumber, row.id)
+
+    # make the otp expired, the otp is job is done
+    
+    otpRow.expiaryDate = now
+    otpRow.save()
 
     return response
 
@@ -389,7 +419,7 @@ def reset_password(request):
 
     # validdate otp
     try:
-        row = User.models.OTPMappings.objects.get(phoneNumber=phoneNumber)
+        row = Seller.models.SellerOTPMappings.objects.get(phoneNumber=phoneNumber)
         # check if opt is correct and valid
         if row.expiaryDate > now and row.otpValue == otpValue:
             # valid otp mapping exists
@@ -404,7 +434,7 @@ def reset_password(request):
             return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.OtpValidationFailed, {'otpValue': otpValue }))          
 
 
-    except User.models.OTPMappings.DoesNotExist:
+    except Seller.models.SellerOTPMappings.DoesNotExist:
         # create new 
         Helpers.logger.debug('Otp doesnot exists {0}'.format(otpValue))
         return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.OtpValidationFailed, otpValue))

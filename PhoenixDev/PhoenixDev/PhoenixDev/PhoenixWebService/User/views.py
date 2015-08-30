@@ -220,15 +220,12 @@ def signup_password(request):
 
     # validdate otp
     try:
-        row = User.models.OTPMappings.objects.get(phoneNumber=phoneNumber)
+        otpRow = User.models.OTPMappings.objects.get(phoneNumber=phoneNumber)
         # check if opt is correct and valid
-        if row.expiaryDate > now and row.otpValue == otpValue:
+        if otpRow.expiaryDate > now and otpRow.otpValue == otpValue:
             # valid otp mapping exists
             Helpers.logger.debug('Otp exists and valid {0}'.format(otpValue))
-            # make the otp expired, the otp is job is done
-            row.expiaryDate = now
-            row.save()
-            
+     
         else:
             # already exists and valid no need to update
             Helpers.logger.debug('Otp exists, but invalid {0}'.format(otpValue))  
@@ -264,6 +261,11 @@ def signup_password(request):
 
     Helpers.create_user_session(request, phoneNumber, row.id)
 
+    # make the otp expired, the otp is job is done
+    otpRow.expiaryDate = now
+    otpRow.save()
+            
+
     return response
 
 
@@ -298,14 +300,12 @@ def reset_password(request):
 
     # validdate otp
     try:
-        row = User.models.OTPMappings.objects.get(phoneNumber=phoneNumber)
+        otpRow = User.models.OTPMappings.objects.get(phoneNumber=phoneNumber)
         # check if opt is correct and valid
-        if row.expiaryDate > now and row.otpValue == otpValue:
+        if otpRow.expiaryDate > now and otpRow.otpValue == otpValue:
             # valid otp mapping exists
             Helpers.logger.debug('Otp exists and valid {0}'.format(otpValue))
-            # make the otp expired, the otp is job is done
-            row.expiaryDate = now
-            row.save()
+
             
         else:
             # already exists and valid no need to update
@@ -343,6 +343,9 @@ def reset_password(request):
     response = HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, 'reset'))   
 
     Helpers.create_user_session(request, phoneNumber, row.id)
+    # make the otp expired, the otp is job is done
+    otpRow.expiaryDate = now
+    otpRow.save()
 
     return response
 

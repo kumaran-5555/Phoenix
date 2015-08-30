@@ -10,9 +10,9 @@ class Sellers(models.Model):
     sellerName = models.CharField(max_length=100)
     sellerCityName = models.CharField(max_length=50)
     sellerAddress = models.CharField(max_length=300)
-    sellerPrimaryPhone = models.CharField(max_length=11)
+    sellerPrimaryPhone = models.CharField(max_length=11, unique=True)
     sellerSecondaryPhone = models.CharField(max_length=11)
-    sellerLatitute = models.FloatField()
+    sellerLatitude = models.FloatField()
     sellerLongitude = models.FloatField()
     sellerMailId = models.CharField(max_length=100)
     sellerWebsite = models.CharField(max_length=100)
@@ -21,6 +21,16 @@ class Sellers(models.Model):
     # let the backend add the timestamp during creation
     sellerSingupTimestamp = models.DateTimeField(auto_now_add=True)
     sellerPasswordHash = models.CharField(max_length=512)
+
+class SellerOTPMappings(models.Model):
+    '''
+        stores the otp send to a mobile number for validating 
+        again
+    '''
+    phoneNumber = models.CharField(max_length=10)
+    otpValue = models.CharField(max_length=5)
+    expiaryDate = models.DateTimeField()
+
 
 class SellerRating(models.Model):
     '''

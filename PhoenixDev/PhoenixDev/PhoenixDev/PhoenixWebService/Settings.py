@@ -14,7 +14,7 @@ USER_SESSION_UPDATE_TIME = 600
 
 SELLER_SESSION_UPDATE_TIME = 600
 
-SELLER_NAME_REGEX_PATTERN = '^[A-Za-z0-9\-&@]+$'
+SELLER_NAME_REGEX_PATTERN = '^[A-Za-z0-9\-&@ ]+$'
 
 EMAIL_REGEX_PATTERN = '^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$'
 

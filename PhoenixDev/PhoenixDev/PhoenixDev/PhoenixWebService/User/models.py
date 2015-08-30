@@ -8,7 +8,7 @@ class Users(models.Model):
         primary table to store user related information
     '''
     userName = models.CharField(max_length=100)
-    userPrimaryPhone = models.CharField(max_length=11)
+    userPrimaryPhone = models.CharField(max_length=11, unique=True)
     userMailId = models.CharField(max_length=100)
     # For completion sake, these fields can be optional for user.
     userCityName = models.CharField(max_length=50)

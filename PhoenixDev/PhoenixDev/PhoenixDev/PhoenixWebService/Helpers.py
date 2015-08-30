@@ -178,7 +178,7 @@ def create_seller_session(request, phoneNumber, sellerId):
 
     # set session 
     request.session['phoneNumber'] = phoneNumber
-    request.session['sellerId'] = Seller.models.Sellers.objects.get(id=userId)
+    request.session['sellerId'] = Seller.models.Sellers.objects.get(id=sellerId)
     request.session['loggedInTime'] = timezone.now()
     request.session['lastActivityTime'] = timezone.now()
     request.session['type'] = Settings.SELLER_TYPE
