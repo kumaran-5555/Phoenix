@@ -39,7 +39,8 @@ urlpatterns = patterns('',
     url(r'^product/reviews/$', ProductViews.product_reviews, name='product_reviews'),
     url(r'^product/search/$',ProductViews.product_search,name='product_search'),
     url(r'^user/rateproduct/$', ProductViews.rate_product),
-    url(r'^user/reviewproduct/$', ProductViews.review_product)
+    url(r'^user/reviewproduct/$', ProductViews.review_product),
+    url(r'^seller/offerings/add/$', ProductViews.add_offerings, anme='add_offerings')
     
     
 )
