@@ -42,6 +42,9 @@ class StatusCodes():
     InvalidSellerSession = 23
     NoProductsFound = 24
     InvalidCategoryID = 25
+    InvalidOfferingParams = 26
+    InvalidProductIdList = 27
+    InvalidCategoryIdList = 28
     
 
 
@@ -73,6 +76,10 @@ class StatusMessage():
     statusMessages[StatusCodes.InvalidSellerSession] = 'Invalid seller session'
     statusMessages[StatusCodes.NoProductsFound] = 'No products found'
     statusMessages[StatusCodes.InvalidCategoryID] = "Invalid Category ID"
+    statusMessages[StatusCodes.InvalidOfferingParams] = "Invalid delete offering params"
+    statusMessages[StatusCodes.InvalidCategoryIdList] = "Invalid category Id List"
+
+
 
 
 

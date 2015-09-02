@@ -334,4 +334,54 @@ def review_product(request):
 
 
 
+def offerings_delete(request):
+
+    if request.method != 'POST':
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NotPostRequest, ''))
+
+    if not Helpers.validate_seller_session(request):
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidSellerSession, ''))
+
+    sellerId = request.session['sellerId']
+    
+    categoryIdList = request.POST.get('categoryIdList', False)
+
+    productIdList = request.POST.get('productIdList', False)
+
+    if not categoryIdList and not productIdList:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidOfferingParams, ''))
+
+    categoryIdListInt = []
+
+    fields = categoryIdList.split(',')
+
+    for f in fields:
+        try:
+            categoryIdListInt.append(int(f))
+        except ValueError:
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidCategoryIdList, categoryIdList))
+
+    productIdListInt = []
+
+    fields = productIdList.split(',')
+
+    for f in fields:
+        try:
+            productIdListInt.append(int(f))
+        except ValueError:
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidProductIdList, productIdList))
+
+    for c in categoryIdListInt:
+        row = Product.models.SellerCategoryOfferings.filter(sellerId = sellerId, categoryId = c).delete()
+
+    for p in productIdListInt:
+        row = Product.models.SellerProductOfferings.filter(sellerId = sellerId, productId = p).delete()
+
+
+    return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, 'deleted'))
+
+
+
+
+
 
