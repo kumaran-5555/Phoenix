@@ -397,11 +397,8 @@ def add_offerings(request):
         if not sentinel :   
             pp = SellerProductOfferings.create(sellerId = sellerId, productId = p)
 
+    return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, 'Added!'))
 
-
-
-
- 
 
 
 def offerings_delete(request):
