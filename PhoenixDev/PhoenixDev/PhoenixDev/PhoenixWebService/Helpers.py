@@ -1,16 +1,29 @@
 ﻿import json
 import logging
 import re
-
-import Settings
+import math
+import PhoenixDev.PhoenixWebService.Settings
 
 from django.utils import timezone
 import datetime
 from PhoenixDev.PhoenixWebService import *
+from enum import enum
 
 
 logger = logging.getLogger(Settings.LOGGERNAME)
 
+class Enum(set):
+    def __getattr__(self, name):
+        if name in self:
+            return name
+        raise AttributeError
+
+
+
+class Constants():
+    SelectionType = Enum(['Product','Brand','Category'])
+    latLongModulo = 5
+    latLongMultiplyer = 100
 
 
 class StatusCodes():
@@ -45,6 +58,7 @@ class StatusCodes():
     InvalidOfferingParams = 26
     InvalidProductIdList = 27
     InvalidCategoryIdList = 28
+    InvalidSelectionType =  29
     
 
 
@@ -78,6 +92,7 @@ class StatusMessage():
     statusMessages[StatusCodes.InvalidCategoryID] = "Invalid Category ID"
     statusMessages[StatusCodes.InvalidOfferingParams] = "Invalid delete offering params"
     statusMessages[StatusCodes.InvalidCategoryIdList] = "Invalid category Id List"
+    statusMessages[StatusCodes.InvalidSelectionType] = "Invalid selection type"
 
 
 
@@ -229,3 +244,88 @@ def delete_seller_session(request):
         assumes session is valid
     '''
     request.session.flush()
+
+
+
+#http://stackoverflow.com/questions/238260/how-to-calculate-the-bounding-box-for-a-given-lat-lng-location
+# degrees to radians
+def deg2rad(degrees):
+    return math.pi*degrees/180.0
+# radians to degrees
+def rad2deg(radians):
+    return 180.0*radians/math.pi
+
+# Semi-axes of WGS-84 geoidal reference
+WGS84_a = 6378137.0  # Major semiaxis [m]
+WGS84_b = 6356752.3  # Minor semiaxis [m]
+
+# Earth radius at a given latitude, according to the WGS-84 ellipsoid [m]
+def WGS84EarthRadius(lat):
+    # http://en.wikipedia.org/wiki/Earth_radius
+    An = WGS84_a*WGS84_a * math.cos(lat)
+    Bn = WGS84_b*WGS84_b * math.sin(lat)
+    Ad = WGS84_a * math.cos(lat)
+    Bd = WGS84_b * math.sin(lat)
+    return math.sqrt( (An*An + Bn*Bn)/(Ad*Ad + Bd*Bd) )
+
+# Bounding box surrounding the point at given coordinates,
+# assuming local approximation of Earth surface as a sphere
+# of radius given by WGS84
+def boundingBox(latitudeInDegrees, longitudeInDegrees, halfSideInKm):
+    lat = deg2rad(latitudeInDegrees)
+    lon = deg2rad(longitudeInDegrees)
+    halfSide = 1000*halfSideInKm
+
+    # Radius of Earth at given latitude
+    radius = WGS84EarthRadius(lat)
+    # Radius of the parallel at given latitude
+    pradius = radius*math.cos(lat)
+
+    latMin = lat - halfSide/radius
+    latMax = lat + halfSide/radius
+    lonMin = lon - halfSide/pradius
+    lonMax = lon + halfSide/pradius
+
+    return (rad2deg(latMin), rad2deg(lonMin), rad2deg(latMax), rad2deg(lonMax))
+ 
+def latLonRoundDown(latitude, longitude):
+    
+    latitude = int(latitude * Helpers.Constants.latLongMultiplyer)
+    latitude = latitude - (latitude % Helpers.Constants.latLongModulo)
+    
+    longitude = int(longitude * Helpers.Constants.latLongMultiplyer)
+    longitude = longitude - (longitude % Helpers.Constants.latLongModulo)
+
+    return (latitude, longitude)
+
+def latLonRoundUp(latitude, longitude):
+    latitude = int(latitude * Helpers.Constants.latLongMultiplyer)
+    latitude = latitude + (latitude % Helpers.Constants.latLongModulo)
+
+    longitude = int(longitude * Helpers.Constants.latLongMultiplyer)
+    longitude = longitude + (longitude % Helpers.Constants.latLongModulo)
+
+    return (latitude, longitude)
+
+
+
+def overlapping_tiles(latitude, longitude, squareSize=15):
+    latMin, lonMin, latMax, lonMax = boundingBox(latitude, longitude, squareSize/2)
+
+    latMin, lonMin = latLonRoundDown(latMin, lonMin)
+
+    latMax, lonMax = latLonRoundUp(latMax, lonMax)
+
+    
+    tiles = []
+
+    # sweep the grid to create all tiles
+    for lat in range(latMin, latMax, Helpers.Constants.latLongModulo):
+        for lon in range(lonMin, lonMax, Helpers.Constants.latLongModulo):
+            tiles.append('{0:06}_{0:06}'.format(lat, lon))
+
+    return tiles
+
+
+
+

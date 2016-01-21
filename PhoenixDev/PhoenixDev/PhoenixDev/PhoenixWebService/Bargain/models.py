@@ -63,3 +63,31 @@ class BargainOfferedFeatures(models.Model):
         
 
 
+class MessageBox(models.Model):
+    '''
+        stores raw message
+    '''
+    # skip FK
+    fromId = models.IntegerField(11)
+    # skip FK
+    toId = models.IntegerField(11)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    message = models.CharField(max_length=4096)
+
+
+class MessageRouter(models.Model):
+    '''
+       provides routing information for message
+       given product/category/brand+category + location
+       provides sellers who are likely to fullfill the request 
+    '''
+
+    # skip FK
+    tileId = models.CharField(max_legnth=20)
+    # captures product/brand/category Ids
+    productSelectionId = models.IntegerField(11)
+    # prodvides what type of selection product/brand/category
+    productSelectionType = models.IntegerField(1)
+    # skip FK
+    sellerId = models.IntegerField(11)
+

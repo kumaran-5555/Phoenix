@@ -2,6 +2,7 @@
 from PhoenixDev.PhoenixWebService.Product import views as ProductViews
 from PhoenixDev.PhoenixWebService.User import views as UserViews
 from PhoenixDev.PhoenixWebService.Seller import views as SellerViews
+from PhoenixDev.PhoenixWebService.Bargain import views as BargainViews
 
 urlpatterns = patterns('',
     # Examples:
@@ -41,7 +42,11 @@ urlpatterns = patterns('',
     url(r'^user/rateproduct/$', ProductViews.rate_product),
     url(r'^user/reviewproduct/$', ProductViews.review_product),
     url(r'^seller/offerings/add/$', ProductViews.add_offerings, name='add_offerings'),
-    url(r'^seller/offerings/delete/$', ProductViews.add_offerings, name='offerings_delete')
+    url(r'^seller/offerings/delete/$', ProductViews.add_offerings, name='offerings_delete'),
+
+
+    # messages
+    url(r'^user/messages/send/$', BargainViews.send, name='send')
     
     
 )

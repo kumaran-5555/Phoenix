@@ -7,6 +7,10 @@ CONVENTION :
  -> Category taxonomy always on TOP.
  -> Two newlines separating every class.
 
+ 1. each product belongs to a brand
+ 2. each brand belong to a category. Sony might have multiple category products, but Sony+TV is regarded as one brand and Sony+phone is regarded as another one
+
+
 '''
 
 class CategoryTaxonomy(models.Model):
@@ -26,7 +30,6 @@ class Products(models.Model):
     '''
     # auto primary key is created by django, we will use that
     # TODO - supports more than category 
-    productCategoryId = models.ForeignKey(CategoryTaxonomy)
     productName = models.CharField(max_length=200)
     productBrandId = models.ForeignKey('ProductBrands')
 
