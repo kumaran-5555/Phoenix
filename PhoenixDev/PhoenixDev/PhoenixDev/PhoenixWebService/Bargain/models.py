@@ -62,11 +62,24 @@ class BargainOfferedFeatures(models.Model):
     featureId = models.ForeignKey(AvailableFeatures)
         
 
-
 class MessageBox(models.Model):
+    # skip FK to user
+    userId = models.IntegerField(11)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    headMessage = models.CharField(1024)
+    recentResponseTimestamp = models.DateTimeField()
+    recentResponse = models.CharField(1024)
+    numOfResponses = models.IntegerField()
+    isActive = models.BooleanField(default=True)
+    
+
+
+class MessageBoxThreads(models.Model):
     '''
         stores raw message
     '''
+    messageId = models.ForeignKey(MessageBox)
+
     # skip FK
     fromId = models.IntegerField(11)
     # skip FK
@@ -90,4 +103,25 @@ class MessageRouter(models.Model):
     productSelectionType = models.IntegerField(1)
     # skip FK
     sellerId = models.IntegerField(11)
+    # helps easy re-tiling
+    sellerLatitude = models.FloatField()
+    sellerLongitude = models.FloatField()
+    # python pickle-d dict of features
+    sellerRankingFeatures = models.BinaryField(2048)
+
+    # seller appid for sending notification
+    sellerAppId = models.CharField(512)
+
+
+
+    
+
+class NotificationsQueue(models.Model):
+    appId = models.CharField(512)
+    shortMessage = models.CharField(1024)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    retryCount = models.IntegerField(default=0)
+    isPending = models.BooleanField(default=True)
+
+
 

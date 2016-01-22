@@ -20,6 +20,7 @@ class Enum(set):
 
 
 
+
 class Constants():
     SelectionType = Enum(['Product','Brand','Category'])
     latLongModulo = 5
@@ -59,6 +60,7 @@ class StatusCodes():
     InvalidProductIdList = 27
     InvalidCategoryIdList = 28
     InvalidSelectionType =  29
+    InvalidBargainMessage = 30
     
 
 
@@ -93,6 +95,7 @@ class StatusMessage():
     statusMessages[StatusCodes.InvalidOfferingParams] = "Invalid delete offering params"
     statusMessages[StatusCodes.InvalidCategoryIdList] = "Invalid category Id List"
     statusMessages[StatusCodes.InvalidSelectionType] = "Invalid selection type"
+    statusMessages[StatusCodes.InvalidBargainMessage] = 'Invalid Bargain message'
 
 
 
@@ -328,4 +331,14 @@ def overlapping_tiles(latitude, longitude, squareSize=15):
 
 
 
+def rankeSellers(sellers):
+    return sellers
+
+
+def validateMessage(message):
+    return True
+
+
+def shortenMessage(message):
+    return message[:100]
 

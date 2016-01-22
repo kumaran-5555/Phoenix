@@ -31,7 +31,7 @@ class Products(models.Model):
     # auto primary key is created by django, we will use that
     # TODO - supports more than category 
     productName = models.CharField(max_length=200)
-    productBrandId = models.ForeignKey('ProductBrands')
+    brandId = models.ForeignKey('ProductBrands')
 
     class Meta :
 
