@@ -25,6 +25,7 @@ class Constants():
     SelectionType = Enum(['Product','Brand','Category'])
     latLongModulo = 5
     latLongMultiplyer = 100
+    numMesssagesToReturn = 10
 
 
 class StatusCodes():
@@ -61,6 +62,8 @@ class StatusCodes():
     InvalidCategoryIdList = 28
     InvalidSelectionType =  29
     InvalidBargainMessage = 30
+    InvalidMessageId = 31
+
     
 
 
@@ -96,6 +99,7 @@ class StatusMessage():
     statusMessages[StatusCodes.InvalidCategoryIdList] = "Invalid category Id List"
     statusMessages[StatusCodes.InvalidSelectionType] = "Invalid selection type"
     statusMessages[StatusCodes.InvalidBargainMessage] = 'Invalid Bargain message'
+    statusMessages[StatusCodes.InvalidMessageId] = 'Invalid message id'
 
 
 
@@ -172,7 +176,11 @@ def validate_user_session(request):
             # looks like the session is broken
             # TODO clear the session
             logger.debug('Broken session')
-            pass
+            # remove bad sessions - this fixed in the later version. Happy !
+            request.COOKIES = {}
+            request.session.flush()
+
+            return False
         
         if lastActivity + delta < now:
             request.session['lastActivityTime'] = timezone.now()       

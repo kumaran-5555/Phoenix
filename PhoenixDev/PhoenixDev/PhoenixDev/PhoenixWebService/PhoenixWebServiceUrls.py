@@ -46,7 +46,9 @@ urlpatterns = patterns('',
 
 
     # messages
-    url(r'^user/messages/send/$', BargainViews.send, name='send')
+    url(r'^user/messages/send/$', BargainViews.send, name='send'),
+    url(r'^user/messages/close/$', BargainViews.close, name='close'),
+    url(r'^user/messages//viewsummary/$', BargainViews.view_summary, name='view_summary')
     
     
 )

@@ -67,9 +67,9 @@ class MessageBox(models.Model):
     userId = models.IntegerField(11)
     timestamp = models.DateTimeField(auto_now_add=True)
     headMessage = models.CharField(1024)
-    recentResponseTimestamp = models.DateTimeField()
+    recentResponseTimestamp = models.DateTimeField(auto_now_add=True)
     recentResponse = models.CharField(1024)
-    numOfResponses = models.IntegerField()
+    numOfResponses = models.IntegerField(default=0)
     isActive = models.BooleanField(default=True)
     
 

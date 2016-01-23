@@ -9,6 +9,8 @@ from PhoenixDev.PhoenixWebService.Bargain.models import *
 from PhoenixDev.PhoenixWebService import Helpers
 from PhoenixDev.PhoenixWebService import Settings
 from django.db import IntegrityError
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Q
 from django.http import HttpResponse
 import json
@@ -16,6 +18,7 @@ import sympy.geometry as geo
 
 
 def send(request):
+
     if request.method != 'POST':
         return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NotPostRequest, ''))
     
@@ -131,13 +134,22 @@ def send(request):
         for s in rows:
             sellers.append(s)
 
-    # do some ranking 
-
+    # do some ranking
     sellers = Helpers.rankeSellers(sellers)
 
+
+    # create message
+    messageObj = Bargain.models.MessageBox.objects.create(userId=request.session.get('userId'), headMessage=message)
+
+    
     shortMessage = Helpers.shortenMessage(message)
 
     for seller in sellers:
+        # add message for seller
+
+        # create threads
+        Bargain.models.MessageBoxThreads(messageId = messageObj, fromId = request.session.get('userId'), toId = seller.sellerId, message=message)
+
         Bargain.models.NotificationsQueue.create(appId=seller.sellerAppId, shortMessage=shortMessage)
 
 
@@ -146,6 +158,90 @@ def send(request):
 
 
 
+
+def close(request):
+    if request.method != 'POST':
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NotPostRequest, ''))
+    
+    if not Helpers.validate_user_session(request):
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidUserSession, ''))
+
+    messageId = request.POST.get('messageId', False)
+
+    try:
+        message = Bargain.models.MessageBox.objects.get(id=messageId)
+    except ObjectDoesNotExist:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidMessageId, ''))
+
+
+    if message.userId != request.session.get('userId'):
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidMessageId, {'notOwner' : messageId }))
+    
+
+    
+    message.isActive = False
+
+    message.save()
+
+    return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, {'deletedMessageId': messageId}))
+
+
+def view_summary(request):
+    if request.method != 'GET':
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NotGetRequest, ''))
+
+
+    if not Helpers.validate_user_session(request):
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidUserSession, ''))
+
+    userId = request.session.get('userId')
+
+    messages = Bargain.models.MessageBox.objects.filter(userId=userId).oder_by('recentResponseTimestamp').desc()
+
+
+    skip = request.GET.get('skip', False)
+
+    if not skip:
+        skip = 0
+
+    else:
+        try:
+            skip = int(skip)
+        except ValueError:
+            skip = 0
+
+    return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, {'messages' : messages[skip: skip + Helpers.Constants.numMesssagesToReturn]}))
+
+
+
+    
+def view_details(request):
+    if request.method != 'GET':
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NotGetRequest, ''))
+
+
+    if not Helpers.validate_user_session(request):
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidUserSession, ''))
+
+    userId = request.session.get('userId')
+
+    messageId = request.GET.get('messageId', False)
+
+    if not messageId:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidMessageId, {'messageId': messageId}))
+
+
+    # we already have head message, only has to retrive response
+
+    messages = Bargain.models.MessageBoxThreads.objects.filter(messageId=messageId, toId=userId).order_by('timestamp').desc()
+
+    return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, { 'messages': messages}))
+
+
+
+
+
+   
 
 
 
