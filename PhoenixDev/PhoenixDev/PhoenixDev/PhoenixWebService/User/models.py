@@ -1,7 +1,7 @@
 ﻿from django.db import models
 
 from PhoenixDev.PhoenixWebService import *
-
+from PhoenixDev.PhoenixWebService import Helpers
 
 class Users(models.Model):
     '''
@@ -16,6 +16,8 @@ class Users(models.Model):
     # sha512
     userPasswordHash = models.CharField(max_length=512)
     userSignupTime = models.DateTimeField(auto_now_add=True)
+    userAppId = models.CharField(max_length=Helpers.Constants.appIdLength, default='')
+
 
 class OTPMappings(models.Model):
     '''

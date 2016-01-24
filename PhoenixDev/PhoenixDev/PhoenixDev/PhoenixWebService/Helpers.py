@@ -7,7 +7,6 @@ import PhoenixDev.PhoenixWebService.Settings
 from django.utils import timezone
 import datetime
 from PhoenixDev.PhoenixWebService import *
-from enum import enum
 
 
 logger = logging.getLogger(Settings.LOGGERNAME)
@@ -22,10 +21,14 @@ class Enum(set):
 
 
 class Constants():
-    SelectionType = Enum(['Product','Brand','Category'])
+    class SelectionType:
+        Product = 0
+        Brand = 1
+        Category = 2
     latLongModulo = 5
     latLongMultiplyer = 100
     numMesssagesToReturn = 10
+    appIdLength = 512
 
 
 class StatusCodes():
@@ -63,6 +66,7 @@ class StatusCodes():
     InvalidSelectionType =  29
     InvalidBargainMessage = 30
     InvalidMessageId = 31
+    InvalidBrandIdList = 32
 
     
 
@@ -100,6 +104,8 @@ class StatusMessage():
     statusMessages[StatusCodes.InvalidSelectionType] = "Invalid selection type"
     statusMessages[StatusCodes.InvalidBargainMessage] = 'Invalid Bargain message'
     statusMessages[StatusCodes.InvalidMessageId] = 'Invalid message id'
+    statusMessages[StatusCodes.InvalidBrandIdList] = 'Invalid brand id list'
+
 
 
 

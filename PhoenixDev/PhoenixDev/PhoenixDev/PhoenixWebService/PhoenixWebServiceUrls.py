@@ -41,14 +41,15 @@ urlpatterns = patterns('',
     url(r'^product/search/$',ProductViews.product_search,name='product_search'),
     url(r'^user/rateproduct/$', ProductViews.rate_product),
     url(r'^user/reviewproduct/$', ProductViews.review_product),
-    url(r'^seller/offerings/add/$', ProductViews.add_offerings, name='add_offerings'),
-    url(r'^seller/offerings/delete/$', ProductViews.add_offerings, name='offerings_delete'),
+    url(r'^seller/offerings/add/$', BargainViews.add_offerings, name='add_offerings'),
+    url(r'^seller/offerings/delete/$', BargainViews.delete_offerings, name='offerings_delete'),
 
 
     # messages
     url(r'^user/messages/send/$', BargainViews.send, name='send'),
     url(r'^user/messages/close/$', BargainViews.close, name='close'),
-    url(r'^user/messages//viewsummary/$', BargainViews.view_summary, name='view_summary')
+    url(r'^user/messages/viewsummary/$', BargainViews.view_summary, name='view_summary'),
+    url(r'^seller/messages/reply/$', BargainViews.reply, name='reply')
     
     
 )

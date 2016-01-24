@@ -7,6 +7,10 @@ from PhoenixDev.PhoenixWebService import Settings
 from django.db import IntegrityError
 from django.db.models import Q
 from django.http import HttpResponse
+
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import MultipleObjectsReturned
+
 import json
 
 
@@ -331,124 +335,5 @@ def review_product(request):
     
 
     return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, ''))
-
-
-def offerings_delete(request):
-
-    if request.method != 'POST':
-        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NotPostRequest, ''))
-
-    if not Helpers.validate_seller_session(request):
-        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidSellerSession, ''))
-
-    sellerId = request.session['sellerId']
-    
-    categoryIdList = request.POST.get('categoryIdList', False)
-
-    productIdList = request.POST.get('productIdList', False)
-
-    if not categoryIdList and not productIdList:
-        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidOfferingParams, ''))
-
-
-
-def add_offerings(request):
-
-    if request.method != 'POST':
-        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NotPostRequest, ''))
-
-    if not Helpers.validate_seller_session(request):
-        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidSellerSession, ''))
-    
-    categoryIdList = request.POST.get('categoryIdList', False)
-    productIdList = request.POST.get('productIdList', False)
-    sellerId = request.session['sellerId']
-
-    if not categoryIdList and not productIdList:
-        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidOfferingParams, ''))
-
-    catIdList = []
-    cContents = categoryIdList.split(',')
-
-    for c in cContents :
-        try:
-            catIdListInt.append(int(c))
-        except ValueError:
-            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidCategoryIdList, categoryIdList))
-
-    prodIdList = []
-    pContents = productIdList.split(',')
-
-    for p in pContents:
-        try:
-            proIdList.append(int(p))
-        except ValueError:
-            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidProductIdList, productIdList))
-
-    for c in catIdList :
-        # if categoryId already exists, skip
-        sentinel = SellerCategoryOfferings.filter(sellerId = sellerId, categoryId = c)
-        if sentinel :
-            cc = SellerCategoryOfferings.create(sellerId = sellerId, categoryId = c)
-
-    for p in prodIdList :
-        # if productId already exists, skip
-        sentinel = SellerProductOfferings.filter(sellerId = sellerId, productId = p)
-        if not sentinel :   
-            pp = SellerProductOfferings.create(sellerId = sellerId, productId = p)
-
-    return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, 'Added!'))
-
-
-
-def offerings_delete(request):
-
-    if request.method != 'POST':
-        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NotPostRequest, ''))
-
-    if not Helpers.validate_seller_session(request):
-        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidSellerSession, ''))
-
-    sellerId = request.session['sellerId']
-    
-    categoryIdList = request.POST.get('categoryIdList', False)
-
-    productIdList = request.POST.get('productIdList', False)
-
-    if not categoryIdList and not productIdList:
-        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidOfferingParams, ''))
-
-    categoryIdListInt = []
-
-    fields = categoryIdList.split(',')
-
-    for f in fields:
-        try:
-            categoryIdListInt.append(int(f))
-        except ValueError:
-            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidCategoryIdList, categoryIdList))
-
-    productIdListInt = []
-
-    fields = productIdList.split(',')
-
-    for f in fields:
-        try:
-            productIdListInt.append(int(f))
-        except ValueError:
-            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidProductIdList, productIdList))
-
-    for c in categoryIdListInt:
-        row = Product.models.SellerCategoryOfferings.filter(sellerId = sellerId, categoryId = c).delete()
-
-    for p in productIdListInt:
-        row = Product.models.SellerProductOfferings.filter(sellerId = sellerId, productId = p).delete()
-
-
-    return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, 'deleted'))
-
-
-
-
 
 

@@ -14,7 +14,7 @@ from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Q
 from django.http import HttpResponse
 import json
-import sympy.geometry as geo
+
 
 
 def send(request):
@@ -242,6 +242,8 @@ def view_details(request):
 
 
    
+def reply(request):
+    pass
 
 
 
@@ -254,4 +256,196 @@ def view_details(request):
 
 
 
+   
+
+def add_offerings(request):
+
+    if request.method != 'POST':
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NotPostRequest, ''))
+
+    if not Helpers.validate_seller_session(request):
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidSellerSession, ''))
     
+    categoryIdList = request.POST.get('categoryIdList', False)
+    productIdList = request.POST.get('productIdList', False)
+    brandIdList = request.POST.get('brandIdList', False)
+    seller = request.session['sellerId']
+    
+   
+    if not categoryIdList and not productIdList and not brandIdList:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidOfferingParams, ''))
+
+    catIdList = []
+    if categoryIdList:
+        cContents = categoryIdList.split(',')
+    else:
+        cCoutents = []
+
+    for c in cContents :
+        try:
+            catIdList.append(int(c))
+        except ValueError:
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidCategoryIdList, categoryIdList))
+
+    prodIdList = []
+    if productIdList:
+        pContents = productIdList.split(',')
+    else:
+        pContents = []
+
+    for p in pContents:
+        try:
+            prodIdList.append(int(p))
+        except ValueError:
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidProductIdList, productIdList))
+
+
+    branIdList = []
+    if brandIdList:
+        bContents = brandIdList.split(',')
+    else:
+        bContents = []
+
+    for p in bContents:
+        try:
+            branIdList.append(int(p))
+        except ValueError:
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidBrandIdList, brandIdList))
+
+
+
+
+    for c in catIdList :
+        # validate existence
+
+        try:
+            row = Product.models.CategoryTaxonomy.objects.get(id=c)
+        except ObjectDoesNotExist:
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidCategoryIdList, c))
+
+        # if categoryId already exists, skip
+        sentinel = Bargain.models.MessageRouter.objects.filter(sellerId = seller.id, productSelectionId = c, productSelectionType = Helpers.Constants.SelectionType.Category)
+        if not sentinel :
+            cc = Bargain.models.MessageRouter.objects.create(sellerId = seller.id, productSelectionId = c, productSelectionType = Helpers.Constants.SelectionType.Category, \
+                sellerLatitude = seller.sellerLatitude, sellerLongitude = seller.sellerLongitude, sellerRankingFeatures = seller.sellerRankingFeatures, \
+                sellerAppId = seller.sellerAppId)
+
+
+    for p in prodIdList :
+        try:
+            row = Product.models.Products.objects.get(id=p)
+        except ObjectDoesNotExist:
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidProductIdList, p))
+
+        # if categoryId already exists, skip
+        sentinel = Bargain.models.MessageRouter.objects.filter(sellerId = seller.id, productSelectionId = p, productSelectionType = Helpers.Constants.SelectionType.Product)
+        if not sentinel :
+            cc = Bargain.models.MessageRouter.objects.create(sellerId = seller.id, productSelectionId = p, productSelectionType = Helpers.Constants.SelectionType.Product, \
+                sellerLatitude = seller.sellerLatitude, sellerLongitude = seller.sellerLongitude, sellerRankingFeatures = seller.sellerRankingFeatures, \
+                sellerAppId = seller.sellerAppId)
+
+    for b in branIdList:
+        try:
+            row = Product.models.ProductBrands.objects.get(id=b)
+        except ObjectDoesNotExist:
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidBrandIdList, b))
+
+
+        # if categoryId already exists, skip
+        sentinel = Bargain.models.MessageRouter.objects.filter(sellerId = seller.id, productSelectionId = b, productSelectionType = Helpers.Constants.SelectionType.Brand)
+        if not sentinel :
+            cc = Bargain.models.MessageRouter.objects.create(sellerId = seller.id, productSelectionId = b, productSelectionType = Helpers.Constants.SelectionType.Brand, \
+                sellerLatitude = seller.sellerLatitude, sellerLongitude = seller.sellerLongitude, sellerRankingFeatures = seller.sellerRankingFeatures, \
+                sellerAppId = seller.sellerAppId)
+
+    return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, 'Added!'))
+
+
+
+def delete_offerings(request):
+
+    if request.method != 'POST':
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NotPostRequest, ''))
+
+    if not Helpers.validate_seller_session(request):
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidSellerSession, ''))
+
+    categoryIdList = request.POST.get('categoryIdList', False)
+    productIdList = request.POST.get('productIdList', False)
+    brandIdList = request.POST.get('brandIdList', False)
+    sellerId = request.session['sellerId']
+
+
+    if not categoryIdList and not productIdList and not brandIdList:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidOfferingParams, ''))
+
+    catIdList = []
+    cContents = categoryIdList.split(',')
+
+    for c in cContents :
+        try:
+            catIdListInt.append(int(c))
+        except ValueError:
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidCategoryIdList, categoryIdList))
+
+    prodIdList = []
+    pContents = productIdList.split(',')
+
+    for p in pContents:
+        try:
+            proIdList.append(int(p))
+        except ValueError:
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidProductIdList, productIdList))
+
+
+    braIdList = []
+    bContents = brandIdList.split(',')
+
+    for p in bContents:
+        try:
+            branIdList.append(int(p))
+        except ValueError:
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidBrandIdList, brandIdList))
+
+
+
+
+    for c in catIdList :
+        # validate existence
+
+        try:
+            row = Product.models.CategoryTaxonomy.objects.get(id=c)
+        except ObjectDoesNotExist:
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidCategoryIdList, c))
+
+        # if categoryId exists, delete
+        sentinel = Bargain.models.MessageRouter.filter(sellerId = sellerId, productSelectionId = c, productSelectionType = Helpers.Constants.SelectionType.Category).delete()
+        
+
+
+    for p in prodIdList :
+        try:
+            row = Product.models.Products.object.get(id=p)
+        except ObjectDoesNotExist:
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidProductIdList, p))
+
+        # if categoryId already exists, skip
+        sentinel = Bargain.models.MessageRouter.filter(sellerId = sellerId, productSelectionId = c, productSelectionType = Helpers.Constants.SelectionType.Product).delete()
+
+    for b in branIdList:
+        try:
+            row = Product.models.ProductBrands.objects.get(id=b)
+        except ObjectDoesNotExist:
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidBrandIdList, b))
+
+
+        # if categoryId already exists, skip
+        sentinel = Bargain.models.MessageRouter.filter(sellerId = sellerId, productSelectionId = c, productSelectionType = Helpers.Constants.SelectionType.Brand).delete()
+       
+
+    return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, 'Deleted!'))
+
+
+
+
+

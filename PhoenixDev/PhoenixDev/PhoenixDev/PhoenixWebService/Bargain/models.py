@@ -66,9 +66,9 @@ class MessageBox(models.Model):
     # skip FK to user
     userId = models.IntegerField(11)
     timestamp = models.DateTimeField(auto_now_add=True)
-    headMessage = models.CharField(1024)
+    headMessage = models.CharField(max_length=1024)
     recentResponseTimestamp = models.DateTimeField(auto_now_add=True)
-    recentResponse = models.CharField(1024)
+    recentResponse = models.CharField(max_length=1024)
     numOfResponses = models.IntegerField(default=0)
     isActive = models.BooleanField(default=True)
     
@@ -96,29 +96,30 @@ class MessageRouter(models.Model):
     '''
 
     # skip FK
-    tileId = models.CharField(max_legnth=20)
+    tileId = models.CharField(max_length=20)
     # captures product/brand/category Ids
     productSelectionId = models.IntegerField(11)
     # prodvides what type of selection product/brand/category
-    productSelectionType = models.IntegerField(1)
+    productSelectionType = models.IntegerField()
+
     # skip FK
     sellerId = models.IntegerField(11)
     # helps easy re-tiling
     sellerLatitude = models.FloatField()
     sellerLongitude = models.FloatField()
     # python pickle-d dict of features
-    sellerRankingFeatures = models.BinaryField(2048)
+    sellerRankingFeatures = models.BinaryField(2048,default=None)
 
     # seller appid for sending notification
-    sellerAppId = models.CharField(512)
+    sellerAppId = models.CharField(max_length=Helpers.Constants.appIdLength, default='')
 
 
 
     
 
 class NotificationsQueue(models.Model):
-    appId = models.CharField(512)
-    shortMessage = models.CharField(1024)
+    appId = models.CharField(max_length=Helpers.Constants.appIdLength, default='')
+    shortMessage = models.CharField(max_length=1024)
     timestamp = models.DateTimeField(auto_now_add=True)
     retryCount = models.IntegerField(default=0)
     isPending = models.BooleanField(default=True)
