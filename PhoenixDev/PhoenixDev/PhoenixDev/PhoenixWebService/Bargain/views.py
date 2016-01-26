@@ -373,7 +373,7 @@ def delete_offerings(request):
     categoryIdList = request.POST.get('categoryIdList', False)
     productIdList = request.POST.get('productIdList', False)
     brandIdList = request.POST.get('brandIdList', False)
-    sellerId = request.session['sellerId']
+    seller = request.session['sellerId']
 
 
     if not categoryIdList and not productIdList and not brandIdList:
@@ -384,7 +384,7 @@ def delete_offerings(request):
 
     for c in cContents :
         try:
-            catIdListInt.append(int(c))
+            catIdList.append(int(c))
         except ValueError:
             return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidCategoryIdList, categoryIdList))
 
@@ -393,12 +393,12 @@ def delete_offerings(request):
 
     for p in pContents:
         try:
-            proIdList.append(int(p))
+            prodIdList.append(int(p))
         except ValueError:
             return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidProductIdList, productIdList))
 
 
-    braIdList = []
+    branIdList = []
     bContents = brandIdList.split(',')
 
     for p in bContents:
@@ -419,18 +419,18 @@ def delete_offerings(request):
             return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidCategoryIdList, c))
 
         # if categoryId exists, delete
-        sentinel = Bargain.models.MessageRouter.filter(sellerId = sellerId, productSelectionId = c, productSelectionType = Helpers.Constants.SelectionType.Category).delete()
+        sentinel = Bargain.models.MessageRouter.objects.filter(sellerId = seller.id, productSelectionId = c, productSelectionType = Helpers.Constants.SelectionType.Category).delete()
         
 
 
     for p in prodIdList :
         try:
-            row = Product.models.Products.object.get(id=p)
+            row = Product.models.Products.objects.get(id=p)
         except ObjectDoesNotExist:
             return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidProductIdList, p))
 
         # if categoryId already exists, skip
-        sentinel = Bargain.models.MessageRouter.filter(sellerId = sellerId, productSelectionId = c, productSelectionType = Helpers.Constants.SelectionType.Product).delete()
+        sentinel = Bargain.models.MessageRouter.objects.filter(sellerId = seller.id, productSelectionId = p, productSelectionType = Helpers.Constants.SelectionType.Product).delete()
 
     for b in branIdList:
         try:
@@ -440,7 +440,7 @@ def delete_offerings(request):
 
 
         # if categoryId already exists, skip
-        sentinel = Bargain.models.MessageRouter.filter(sellerId = sellerId, productSelectionId = c, productSelectionType = Helpers.Constants.SelectionType.Brand).delete()
+        sentinel = Bargain.models.MessageRouter.objects.filter(sellerId = seller.id, productSelectionId = b, productSelectionType = Helpers.Constants.SelectionType.Brand).delete()
        
 
     return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, 'Deleted!'))
