@@ -364,7 +364,7 @@ def add_offerings(request):
         # if categoryId already exists, skip
         sentinel = Bargain.models.MessageRouter.objects.filter(sellerId = seller.id, productSelectionId = c, productSelectionType = Helpers.Constants.SelectionType.Category)
         if not sentinel :
-            cc = Bargain.models.MessageRouter.objects.create(sellerId = seller.id, productSelectionId = c, productSelectionType = Helpers.Constants.SelectionType.Category, \
+            cc = Bargain.models.MessageRouter.objects.create(tileId = seller.sellerTileId, sellerId = seller.id, productSelectionId = c, productSelectionType = Helpers.Constants.SelectionType.Category, \
                 sellerLatitude = seller.sellerLatitude, sellerLongitude = seller.sellerLongitude, sellerRankingFeatures = seller.sellerRankingFeatures, \
                 sellerAppId = seller.sellerAppId)
 
@@ -378,7 +378,7 @@ def add_offerings(request):
         # if categoryId already exists, skip
         sentinel = Bargain.models.MessageRouter.objects.filter(sellerId = seller.id, productSelectionId = p, productSelectionType = Helpers.Constants.SelectionType.Product)
         if not sentinel :
-            cc = Bargain.models.MessageRouter.objects.create(sellerId = seller.id, productSelectionId = p, productSelectionType = Helpers.Constants.SelectionType.Product, \
+            cc = Bargain.models.MessageRouter.objects.create(tileId = seller.sellerTileId, sellerId = seller.id, productSelectionId = p, productSelectionType = Helpers.Constants.SelectionType.Product, \
                 sellerLatitude = seller.sellerLatitude, sellerLongitude = seller.sellerLongitude, sellerRankingFeatures = seller.sellerRankingFeatures, \
                 sellerAppId = seller.sellerAppId)
 
@@ -392,7 +392,7 @@ def add_offerings(request):
         # if categoryId already exists, skip
         sentinel = Bargain.models.MessageRouter.objects.filter(sellerId = seller.id, productSelectionId = b, productSelectionType = Helpers.Constants.SelectionType.Brand)
         if not sentinel :
-            cc = Bargain.models.MessageRouter.objects.create(sellerId = seller.id, productSelectionId = b, productSelectionType = Helpers.Constants.SelectionType.Brand, \
+            cc = Bargain.models.MessageRouter.objects.create(tileId = seller.sellerTileId, sellerId = seller.id, productSelectionId = b, productSelectionType = Helpers.Constants.SelectionType.Brand, \
                 sellerLatitude = seller.sellerLatitude, sellerLongitude = seller.sellerLongitude, sellerRankingFeatures = seller.sellerRankingFeatures, \
                 sellerAppId = seller.sellerAppId)
 

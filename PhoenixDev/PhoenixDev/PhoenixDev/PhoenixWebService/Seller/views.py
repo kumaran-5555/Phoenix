@@ -211,6 +211,8 @@ def signup_password(request):
     mailId = request.POST.get('mailId', False)
     website = request.POST.get('website', False)
     description = request.POST.get('description', False)
+    appId = request.POST.get('appId', False)
+
 
 
     # we share the otp with user as secret, only the users
@@ -327,7 +329,12 @@ def signup_password(request):
     else:
         description = ''
     
-      
+     
+    if not appId:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidAppId, appId))
+
+
+
 
 
 
@@ -370,6 +377,7 @@ def signup_password(request):
     row.sellerDescription= description
 
     row.sellerPasswordHash=hash
+    row.sellerAppId = appId
 
     row.save()
 
@@ -439,7 +447,10 @@ def reset_password(request):
         Helpers.logger.debug('Otp doesnot exists {0}'.format(otpValue))
         return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.OtpValidationFailed, otpValue))
 
+    appId = request.POST.get('appId', False)
 
+    if not appId:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidAppId, appId))
 
     # create sha512
     hashObj = hashlib.sha512()
@@ -458,6 +469,7 @@ def reset_password(request):
 
     # resetting password
     row.sellerPasswordHash=hash
+    row.sellerAppId = appId
     row.save()
 
     Helpers.logger.debug('Seller password reset success with phoneNumber {0}'.format(phoneNumber))
@@ -486,6 +498,10 @@ def login(request):
     if not password or len(password) > 15 or not re.match(Settings.PASSWORD_REGEX_PATTERN, password):
         return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidPassword, ''))
 
+    appId = request.POST.get('appId', False)
+
+    if not appId:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidAppId, appId))
 
     now = timezone.now()
 
@@ -499,6 +515,9 @@ def login(request):
     try:
         row = Seller.models.Sellers.objects.get(sellerPrimaryPhone=phoneNumber, sellerPasswordHash=hash)
         # seller name is valid
+        row.sellerAppId = appId
+        row.save()
+
 
     except Seller.models.Sellers.DoesNotExist:
 

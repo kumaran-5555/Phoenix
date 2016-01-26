@@ -21,6 +21,7 @@ class Sellers(models.Model):
     # let the backend add the timestamp during creation
     sellerSingupTimestamp = models.DateTimeField(auto_now_add=True)
     sellerPasswordHash = models.CharField(max_length=512)
+    sellerTileId = models.CharField(max_length=20)
     sellerAppId = models.CharField(max_length=Helpers.Constants.appIdLength, default='')
 
     # python pickle-d dict of features

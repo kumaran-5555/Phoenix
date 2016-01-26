@@ -197,6 +197,7 @@ def signup_password(request):
     password = request.POST.get('password', False)
     phoneNumber =  request.POST.get('phoneNumber', False)
     otpValue = request.POST.get('otpValue', False)
+    appId = request.POST.get('appId', False)
 
     # we share the otp with user as secret, only the users
     # who have correct otp and phonenumber match and valid
@@ -217,6 +218,9 @@ def signup_password(request):
     if not password or len(password) > 15 or not re.match(Settings.PASSWORD_REGEX_PATTERN, password):
         return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidPassword, ''))
     now = timezone.now()
+
+    if not appId:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidAppId, appId))
 
     # validdate otp
     try:
@@ -254,6 +258,8 @@ def signup_password(request):
 
     # adding new user password
     row.userPasswordHash=hash
+    row.userAppId = appId
+
     row.save()
 
     Helpers.logger.debug('User added successfully with phoneNumber {0}'.format(phoneNumber))
@@ -319,6 +325,10 @@ def reset_password(request):
         return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.OtpValidationFailed, otpValue))
 
 
+    appId = request.POST.get('appId', False)
+
+    if not appId:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidAppId, appId))
 
     # create sha512
     hashObj = hashlib.sha512()
@@ -337,6 +347,7 @@ def reset_password(request):
 
     # resetting password
     row.userPasswordHash=hash
+    row.userAppId = appId
     row.save()
 
     Helpers.logger.debug('Seller password reset success with phoneNumber {0}'.format(phoneNumber))
@@ -369,6 +380,11 @@ def login(request):
         return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidPassword, ''))
 
 
+    appId = request.POST.get('appId', False)
+
+    if not appId:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidAppId, appId))
+
     now = timezone.now()
 
     # create sha512
@@ -381,6 +397,8 @@ def login(request):
     try:
         row = User.models.Users.objects.get(userPrimaryPhone=phoneNumber, userPasswordHash=hash)
         # user name is valid
+        row.userAppId = appId
+        row.save()
 
     except User.models.Users.DoesNotExist:
 

@@ -67,6 +67,8 @@ class StatusCodes():
     InvalidBargainMessage = 30
     InvalidMessageId = 31
     InvalidBrandIdList = 32
+    InvalidAppId = 33
+
 
     
 
@@ -105,6 +107,9 @@ class StatusMessage():
     statusMessages[StatusCodes.InvalidBargainMessage] = 'Invalid Bargain message'
     statusMessages[StatusCodes.InvalidMessageId] = 'Invalid message id'
     statusMessages[StatusCodes.InvalidBrandIdList] = 'Invalid brand id list'
+    statusMessages[StatusCodes.InvalidAppId] = 'Invalid app id'
+
+
 
 
 
