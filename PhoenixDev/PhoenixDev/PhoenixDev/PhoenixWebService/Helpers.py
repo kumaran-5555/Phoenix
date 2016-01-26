@@ -307,20 +307,20 @@ def boundingBox(latitudeInDegrees, longitudeInDegrees, halfSideInKm):
  
 def latLonRoundDown(latitude, longitude):
     
-    latitude = int(latitude * Helpers.Constants.latLongMultiplyer)
-    latitude = latitude - (latitude % Helpers.Constants.latLongModulo)
+    latitude = int(latitude * Constants.latLongMultiplyer)
+    latitude = latitude - (latitude % Constants.latLongModulo)
     
-    longitude = int(longitude * Helpers.Constants.latLongMultiplyer)
-    longitude = longitude - (longitude % Helpers.Constants.latLongModulo)
+    longitude = int(longitude * Constants.latLongMultiplyer)
+    longitude = longitude - (longitude % Constants.latLongModulo)
 
     return (latitude, longitude)
 
 def latLonRoundUp(latitude, longitude):
-    latitude = int(latitude * Helpers.Constants.latLongMultiplyer)
-    latitude = latitude + (latitude % Helpers.Constants.latLongModulo)
+    latitude = int(latitude * Constants.latLongMultiplyer)
+    latitude = latitude + (latitude % Constants.latLongModulo)
 
-    longitude = int(longitude * Helpers.Constants.latLongMultiplyer)
-    longitude = longitude + (longitude % Helpers.Constants.latLongModulo)
+    longitude = int(longitude * Constants.latLongMultiplyer)
+    longitude = longitude + (longitude % Constants.latLongModulo)
 
     return (latitude, longitude)
 
@@ -337,9 +337,9 @@ def overlapping_tiles(latitude, longitude, squareSize=15):
     tiles = []
 
     # sweep the grid to create all tiles
-    for lat in range(latMin, latMax, Helpers.Constants.latLongModulo):
-        for lon in range(lonMin, lonMax, Helpers.Constants.latLongModulo):
-            tiles.append('{0:06}_{0:06}'.format(lat, lon))
+    for lat in range(latMin, latMax, Constants.latLongModulo):
+        for lon in range(lonMin, lonMax, Constants.latLongModulo):
+            tiles.append('{0:06}_{1:06}'.format(lat, lon))
 
     return tiles
 

@@ -31,6 +31,11 @@ def send(request):
     if selectionType is False:
         return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidSelectionType, selectionType))
 
+    try:
+        selectionType = int(selectionType)
+    except ValueError:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidSelectionType, selectionType))
+
 
     
     productId = None
@@ -43,14 +48,32 @@ def send(request):
         if productId is False:
             return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidProductId, productId))
 
+        try:
+            productId = int(productId)
+        except ValueError:
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidProductId, productId))
+
     elif selectionType == Helpers.Constants.SelectionType.Brand:
         brandId = request.POST.get('brandId', False)
         if brandId is False:
             return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidBrandId, brandId))
+
+        try:
+            brandId = int(brandId)
+        except ValueError:
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidBrandId, brandId))
+
+
     elif selectionType == Helpers.Constants.SelectionType.Category:
         categoryId = request.POST.get('categoryId', False)
         if categoryId is False:
             return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidCategoryID, categoryId))
+
+        try:
+            categoryId = int(categoryId)
+        except ValueError:
+            return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidCategoryID, categoryId))
+
     else:
         return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidSelectionType, selectionType))
 
@@ -99,6 +122,8 @@ def send(request):
     # TODO - search radius
     tiles = Helpers.overlapping_tiles(latitude, longitude)
 
+    Helpers.logger.debug('overlapping tiles {0}'.format('\t'.join(tiles)))
+
     # we user selected product, we will send notification to potential
     # all sellers who sells this product, this brand and this category
     # in ranking, we use whether user is interested in similar product or 
@@ -116,30 +141,43 @@ def send(request):
         categoryId = row.categoryId_id
 
     
+    Helpers.logger.debug('productId {} brandId {} categoryId {}'.format(productId, brandId, categoryId))
+
     routes = []
 
     if productId:
-        routes.append([(t, productId, Helpers.Constants.SelectionType.Product) for t in tiles])
+        routes.extend([(t, productId, Helpers.Constants.SelectionType.Product) for t in tiles])
 
     if brandId:
-        routes.append([(t, brandId, Helpers.Constants.SelectionType.Brand) for t in tiles])
+        routes.extend([(t, brandId, Helpers.Constants.SelectionType.Brand) for t in tiles])
 
     if categoryId:
-        routes.append([(t, categoryId, Helpers.Constants.SelectionType.Category) for t in tiles])
+        routes.extend([(t, categoryId, Helpers.Constants.SelectionType.Category) for t in tiles])
 
 
+    Helpers.logger.debug('Routes {}'.format('\t'.join([str(t) for t in routes])))
     sellers = []
+    sellerIds = {}
     for r in routes:
         rows = Bargain.models.MessageRouter.objects.filter(tileId = r[0], productSelectionId = r[1], productSelectionType = r[2])
         for s in rows:
+            if s.sellerId in sellerIds:
+                continue
+
+            sellerIds[s.sellerId] = True
+
             sellers.append(s)
+
+    Helpers.logger.debug('Sellers {}'.format('\t'.join([str(s.sellerId) for i in sellers])))
+
+    user = request.session.get('userId')
 
     # do some ranking
     sellers = Helpers.rankeSellers(sellers)
 
 
     # create message
-    messageObj = Bargain.models.MessageBox.objects.create(userId=request.session.get('userId'), headMessage=message)
+    messageObj = Bargain.models.MessageBox.objects.create(userId=user.id, headMessage=message)
 
     
     shortMessage = Helpers.shortenMessage(message)
@@ -148,9 +186,9 @@ def send(request):
         # add message for seller
 
         # create threads
-        Bargain.models.MessageBoxThreads(messageId = messageObj, fromId = request.session.get('userId'), toId = seller.sellerId, message=message)
+        Bargain.models.MessageBoxThreads.objects.create(messageId = messageObj, fromId = user.id, toId = seller.sellerId, message=message)
 
-        Bargain.models.NotificationsQueue.create(appId=seller.sellerAppId, shortMessage=shortMessage)
+        Bargain.models.NotificationsQueue.objects.create(appId=seller.sellerAppId, shortMessage=shortMessage)
 
 
     return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, {'numOfSeller': len(sellers)}))
