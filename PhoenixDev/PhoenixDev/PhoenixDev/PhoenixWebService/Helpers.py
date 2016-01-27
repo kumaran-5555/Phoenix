@@ -7,6 +7,8 @@ import PhoenixDev.PhoenixWebService.Settings
 from django.utils import timezone
 import datetime
 from PhoenixDev.PhoenixWebService import *
+from django.core import serializers
+
 
 
 logger = logging.getLogger(Settings.LOGGERNAME)
@@ -157,6 +159,11 @@ def create_user_session(request, phoneNumber, userId):
         creates session in request, assumes valid userId and phoneNumber
     '''
 
+    # cleanup session
+    request.COOKIES = {}
+    request.session.flush()
+
+
     # set session 
     request.session['phoneNumber'] = phoneNumber
     request.session['userId'] = User.models.Users.objects.get(id=userId)
@@ -221,12 +228,18 @@ def create_seller_session(request, phoneNumber, sellerId):
         creates session in request, assumes valid sellerId and phoneNumber
     '''
 
+    # cleanup session
+    request.COOKIES = {}
+    request.session.flush()
+
+
     # set session 
     request.session['phoneNumber'] = phoneNumber
     request.session['sellerId'] = Seller.models.Sellers.objects.get(id=sellerId)
     request.session['loggedInTime'] = timezone.now()
     request.session['lastActivityTime'] = timezone.now()
     request.session['type'] = Settings.SELLER_TYPE
+
 
     
 def validate_seller_session(request):
@@ -362,3 +375,6 @@ def validateMessage(message):
 def shortenMessage(message):
     return message[:100]
 
+
+def jsonizeDjangoObject(obj):
+    return serializers.serialize('json', obj)

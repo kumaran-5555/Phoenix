@@ -83,6 +83,7 @@
     <Folder Include="Test\templates\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Backup.postman_dump" />
     <Content Include="PhoenixDev\PhoenixWebService\Bargain\templates\index.html" />
     <Content Include="PhoenixDev\PhoenixWebService\migrations\0001_initial.pyc" />
     <Content Include="PhoenixDev\PhoenixWebService\migrations\0002_productratings_productreview_sellerrating_sellerreview.pyc" />

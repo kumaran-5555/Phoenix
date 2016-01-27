@@ -73,7 +73,7 @@ DATABASES = {
 		'ENGINE': 'django.db.backends.mysql',
 		'NAME': 'phoenix_dev',
 		'USER': 'project005',
-		'PASSWORD': 'pivotproject005',
+		'PASSWORD': 'hayabusa@1340',
 		'HOST': 'project005.cloudapp.net',
 		'PORT': '3306',
 	}

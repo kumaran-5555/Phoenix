@@ -212,7 +212,8 @@ def close(request):
         return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidMessageId, ''))
 
 
-    if message.userId != request.session.get('userId'):
+    user = request.session.get('userId')
+    if message.userId != user.id:
         return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidMessageId, {'notOwner' : messageId }))
     
 
@@ -232,9 +233,9 @@ def view_summary(request):
     if not Helpers.validate_user_session(request):
         return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidUserSession, ''))
 
-    userId = request.session.get('userId')
+    userId = request.session.get('userId').id
 
-    messages = Bargain.models.MessageBox.objects.filter(userId=userId).oder_by('recentResponseTimestamp').desc()
+    messages = Bargain.models.MessageBox.objects.filter(userId=userId).order_by('recentResponseTimestamp').reverse()
 
 
     skip = request.GET.get('skip', False)
@@ -248,7 +249,7 @@ def view_summary(request):
         except ValueError:
             skip = 0
 
-    return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, {'messages' : messages[skip: skip + Helpers.Constants.numMesssagesToReturn]}))
+    return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, {'messages' : Helpers.jsonizeDjangoObject(messages[skip: skip + Helpers.Constants.numMesssagesToReturn])}))
 
 
 
