@@ -13,6 +13,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import MultipleObjectsReturned
 from django.db.models import Q
 from django.http import HttpResponse
+
 import json
 
 
@@ -177,7 +178,7 @@ def send(request):
 
 
     # create message
-    messageObj = Bargain.models.MessageBox.objects.create(userId=user.id, headMessage=message)
+    messageObj = Bargain.models.MessageBox.objects.create(userId=user.id, headMessage=message, userAppId=user.userAppId)
 
     
     shortMessage = Helpers.shortenMessage(message)
@@ -262,7 +263,7 @@ def view_details(request):
     if not Helpers.validate_user_session(request):
         return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidUserSession, ''))
 
-    userId = request.session.get('userId')
+    userId = request.session.get('userId').id
 
     messageId = request.GET.get('messageId', False)
 
@@ -270,11 +271,18 @@ def view_details(request):
         return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidMessageId, {'messageId': messageId}))
 
 
+    try:
+        messageId = int(messageId)
+    except valueError:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidMessageId, {'messageId': messageId}))
+
+
+
     # we already have head message, only has to retrive response
 
-    messages = Bargain.models.MessageBoxThreads.objects.filter(messageId=messageId, toId=userId).order_by('timestamp').desc()
+    messages = Bargain.models.MessageBoxThreads.objects.filter(Q(messageId=messageId) & (Q(toId=userId) | Q(fromId=userId))).order_by('timestamp').reverse()
 
-    return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, { 'messages': messages}))
+    return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, { 'messages': Helpers.jsonizeDjangoObject(messages)}))
 
 
 
@@ -282,14 +290,111 @@ def view_details(request):
 
    
 def reply(request):
-    pass
+    if request.method != 'POST':
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NotPostRequest, ''))
+
+    if not Helpers.validate_seller_session(request):
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidSellerSession, ''))
+
+
+    seller = request.session['sellerId']
+    
+    messageId = request.POST.get('messageId', False)
+
+
+    if not messageId:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidMessageId, {'messageId': messageId}))
+
+    try:
+        messageId = int(messageId)
+    except valueError:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidMessageId, {'messageId': messageId}))
+
+    message = request.POST.get('message', False)
+
+    if not message or not Helpers.validateMessage(message):
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidBargainMessage, message))
+    
+
+    toId = request.POST.get('toId', False)
+
+    if not toId:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidToid, {'messageId': toId}))
+
+    try:
+        toId = int(toId)
+    except valueError:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidToid, {'messageId': toId}))
+
+    try:
+        messageObj = Bargain.models.MessageBox.objects.get(id=messageId)
+
+    except ObjectDoesNotExist:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InactiveMessage, {'messageId': messageId}))
+
+
+
+    if messageObj.userId != toId:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidToid, {'messageId': toId}))
+
+    if not messageObj.isActive:
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InactiveMessage, {'messageId': messageId}))
+
+
+    
+
+    shortMessage = Helpers.shortenMessage(message)
+
+    # update message details
+    messageObj.numOfResponses += 1
+    messageObj.recentResponse = shortMessage
+
+
+    messageObj.save()
+
+
+    # create threads
+    Bargain.models.MessageBoxThreads.objects.create(messageId = messageObj, fromId = seller.id, toId = toId, message=message)
+
+    Bargain.models.NotificationsQueue.objects.create(appId=messageObj.userAppId, shortMessage=shortMessage)
+ 
+
+    return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, 'Replied!'))
 
 
 
 
 
+def seller_view_details(request):
+    if request.method != 'GET':
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.NotGetRequest, ''))
 
 
+    if not Helpers.validate_seller_session(request):
+        return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.InvalidSellerSession, ''))
+
+    sellerId = request.session['sellerId'].id
+
+   
+
+    skip = request.GET.get('skip', False)
+
+    if not skip:
+        skip = 0
+
+    else:
+        try:
+            skip = int(skip)
+        except ValueError:
+            skip = 0
+
+
+
+    # we already have head message, only has to retrive response
+
+    messages = Bargain.models.MessageBoxThreads.objects.filter((Q(toId=sellerId) | Q(fromId=sellerId))).order_by('timestamp').reverse()[skip:skip+20]
+
+    return HttpResponse(Helpers.create_json_output(Helpers.StatusCodes.Success, { 'messages': Helpers.jsonizeDjangoObject(messages)}))
 
 
 

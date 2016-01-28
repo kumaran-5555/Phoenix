@@ -70,7 +70,8 @@ class StatusCodes():
     InvalidMessageId = 31
     InvalidBrandIdList = 32
     InvalidAppId = 33
-
+    InvalidToid = 34
+    InactiveMessage = 35
 
     
 
@@ -110,6 +111,9 @@ class StatusMessage():
     statusMessages[StatusCodes.InvalidMessageId] = 'Invalid message id'
     statusMessages[StatusCodes.InvalidBrandIdList] = 'Invalid brand id list'
     statusMessages[StatusCodes.InvalidAppId] = 'Invalid app id'
+    statusMessages[StatusCodes.InvalidToid] = 'Invalid to id'
+    statusMessages[StatusCodes.InactiveMessage] = 'Inactive message'
+
 
 
 

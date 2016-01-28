@@ -49,7 +49,9 @@ urlpatterns = patterns('',
     url(r'^user/messages/send/$', BargainViews.send, name='send'),
     url(r'^user/messages/close/$', BargainViews.close, name='close'),
     url(r'^user/messages/viewsummary/$', BargainViews.view_summary, name='view_summary'),
-    url(r'^seller/messages/reply/$', BargainViews.reply, name='reply')
+    url(r'^user/messages/viewdetails/$', BargainViews.view_details, name='view_details'),
+    url(r'^seller/messages/reply/$', BargainViews.reply, name='reply'),
+    url(r'^seller/messages/viewdetails/$', BargainViews.seller_view_details, name='seller_view_details')
     
     
 )
